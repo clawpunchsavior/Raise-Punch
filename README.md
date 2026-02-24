@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raise-punch.vercel.app" width="0" height="0" />
+  <img src="https://www.raisepunch.fun" width="0" height="0" />
   <strong>🐵 RAISE PUNCH 🍌</strong>
 </p>
 
@@ -7,7 +7,7 @@
 <p align="center"><em>A Tamagotchi-style virtual pet game inspired by Punch — the real baby Japanese macaque who captured the world's heart.</em></p>
 
 <p align="center">
-  <a href="https://raise-punch.vercel.app">🌐 Play Now</a> &nbsp;·&nbsp;
+  <a href="https://www.raisepunch.fun">🌐 Play Now</a> &nbsp;·&nbsp;
   <a href="https://twitter.com/RaisePunch">🐦 Twitter</a>
 </p>
 
@@ -41,7 +41,7 @@ Built as a single self-contained HTML file with pixel art rendered on `<canvas>`
 
 ## How to Play
 
-1. **Visit** [raise-punch.vercel.app](https://raise-punch.vercel.app)
+1. **Visit** [raisepunch.fun](https://www.raisepunch.fun)
 2. **Name your Punch** — Enter a name or keep the default
 3. **Keep all 4 stat bars high** by performing actions:
 
@@ -157,7 +157,7 @@ This game is a tribute to Punch and a reminder that every creature deserves care
 
 ## Community
 
-- **Website:** [raise-punch.vercel.app](https://raise-punch.vercel.app)
+- **Website:** [raisepunch.fun](https://www.raisepunch.fun)
 - **Twitter/X:** [@RaisePunch](https://twitter.com/RaisePunch)
 - **Ticker:** `$RAISE`
 
