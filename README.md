@@ -158,6 +158,7 @@ This game is a tribute to Punch and a reminder that every creature deserves care
 ## Community
 
 - **Website:** [raisepunch.fun](https://www.raisepunch.fun)
+- **Pump.fun:** [Buy $RAISE](https://pump.fun/coin/DCDGy1hm4u48mC1CzrnmUCUR3dfwRnmHpnKM5wb8pump)
 - **Twitter/X:** [@RaisePunch](https://twitter.com/RaisePunch)
 - **Ticker:** `$RAISE`
 
