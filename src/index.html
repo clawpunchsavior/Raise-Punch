@@ -1,0 +1,3096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raise Punch — Tamagotchi Baby Macaque</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%23061006'/%3E%3C!-- ears --%3E%3Crect x='4' y='6' width='4' height='6' fill='%238B5E3C'/%3E%3Crect x='24' y='6' width='4' height='6' fill='%238B5E3C'/%3E%3Crect x='5' y='7' width='2' height='4' fill='%23D4A574'/%3E%3Crect x='25' y='7' width='2' height='4' fill='%23D4A574'/%3E%3C!-- head fur --%3E%3Crect x='8' y='4' width='16' height='4' fill='%238B5E3C'/%3E%3Crect x='6' y='8' width='20' height='4' fill='%238B5E3C'/%3E%3Crect x='6' y='12' width='20' height='2' fill='%238B5E3C'/%3E%3Crect x='8' y='14' width='16' height='2' fill='%238B5E3C'/%3E%3C!-- face --%3E%3Crect x='8' y='14' width='16' height='10' fill='%23D4A574'/%3E%3Crect x='10' y='12' width='12' height='2' fill='%23D4A574'/%3E%3C!-- eyes --%3E%3Crect x='10' y='12' width='4' height='4' fill='%23fff'/%3E%3Crect x='18' y='12' width='4' height='4' fill='%23fff'/%3E%3Crect x='12' y='13' width='2' height='2' fill='%23222'/%3E%3Crect x='20' y='13' width='2' height='2' fill='%23222'/%3E%3C!-- nose --%3E%3Crect x='14' y='17' width='2' height='2' fill='%23704214'/%3E%3Crect x='16' y='17' width='2' height='2' fill='%23704214'/%3E%3C!-- mouth --%3E%3Crect x='12' y='20' width='8' height='2' fill='%23C4956A'/%3E%3Crect x='13' y='21' width='6' height='2' fill='%23E8B89D'/%3E%3C!-- smile line --%3E%3Crect x='14' y='22' width='4' height='1' fill='%23704214'/%3E%3C!-- body --%3E%3Crect x='10' y='24' width='12' height='6' fill='%238B5E3C'/%3E%3Crect x='12' y='24' width='8' height='4' fill='%23D4A574'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#061006;--jdark:#0a1a0a;--jmid:#1e4a1e;--jbright:#4a8c2a;--jyellow:#7ab830;
+--vine:#1a3a10;--primary:#4CAF50;--screen:#7ecf7e;--accent:#ff4444;
+--gold:#FFD700;--cream:#fdf6ee;--text:#e8f5e8;--sdark:#1a3a1a;--glow:rgba(126,207,126,0.4);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;position:relative}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+
+/* ===== CANVASES ===== */
+#jungleBg,#jungleFg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated}
+#jungleBg{z-index:0}
+#jungleFg{z-index:100}
+#firefliesCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99;pointer-events:none}
+
+.content-wrap{position:relative;z-index:10;max-width:780px;margin:0 auto;padding:0 56px}
+@media(max-width:600px){.content-wrap{padding:0 18px}}
+
+/* ===== HEADER ===== */
+.header{text-align:center;padding:40px 16px 14px}
+.header h1{font-size:clamp(1.1rem,4vw,2.1rem);color:var(--primary);text-shadow:0 0 24px var(--glow),0 0 48px rgba(126,207,126,.2);letter-spacing:3px;margin-bottom:10px;line-height:1.4}
+.header p{font-family:'Nunito',sans-serif;font-size:clamp(0.75rem,2vw,1rem);color:var(--screen);opacity:.65;line-height:1.8;letter-spacing:.5px}
+
+/* ===== NAMING ===== */
+.naming-overlay{position:fixed;inset:0;background:rgba(3,8,3,.95);display:flex;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(16px)}
+.naming-overlay.hidden{display:none}
+.naming-box{background:linear-gradient(160deg,rgba(14,34,14,.95),rgba(8,20,8,.98));border:1px solid rgba(76,175,80,.3);border-radius:24px;padding:36px 30px;text-align:center;max-width:420px;width:92%;box-shadow:0 0 80px rgba(126,207,126,.1),0 30px 60px rgba(0,0,0,.45),0 10px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);transform:translateZ(0)}
+.naming-box h2{font-size:clamp(.65rem,2.4vw,.95rem);color:var(--primary);margin-bottom:10px}
+.naming-box p{font-family:'Nunito',sans-serif;font-size:.8rem;color:var(--screen);margin-bottom:20px;line-height:1.9;opacity:.8}
+.naming-box input{font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;padding:14px 18px;border:2px solid rgba(76,175,80,.35);border-radius:14px;background:rgba(26,58,26,.6);color:var(--screen);width:100%;text-align:center;outline:none;margin-bottom:16px;transition:all .3s}
+.naming-box input::placeholder{color:rgba(126,207,126,.25)}
+.naming-box input:focus{border-color:var(--primary);box-shadow:0 0 20px rgba(126,207,126,.15);background:rgba(26,58,26,.8)}
+.naming-box button,.start-btn{font-family:'Press Start 2P',monospace;font-size:.48rem;padding:14px 28px;background:linear-gradient(180deg,#5dbb63 0%,var(--primary) 50%,#2e7d32 100%);color:var(--bg);border:none;border-radius:14px;cursor:pointer;transition:all .3s;box-shadow:0 5px 14px rgba(0,0,0,.3),0 2px 4px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.18)}
+.naming-box button:hover,.start-btn:hover{background:linear-gradient(180deg,#7ecf7e 0%,#66bb6a 50%,var(--primary) 100%);transform:translateY(-3px);box-shadow:0 8px 24px rgba(76,175,80,.3),0 4px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.2)}
+.naming-box button:active,.start-btn:active{transform:translateY(1px);box-shadow:0 2px 6px rgba(0,0,0,.3),inset 0 2px 4px rgba(0,0,0,.15)}
+
+/* ===== TAMAGOTCHI ===== */
+.device-container{display:flex;justify-content:center;padding:24px 0;perspective:800px}
+.tamagotchi{position:relative;width:min(390px,92vw);background:linear-gradient(165deg,#72d478 0%,#5dbb63 18%,var(--primary) 40%,#2e7d32 72%,#1b5e20 100%);border-radius:50% 50% 44% 44%/54% 54% 38% 38%;padding:24px 20px 34px;box-shadow:
+  inset 0 -14px 0 rgba(0,0,0,.25),
+  inset 0 8px 0 rgba(255,255,255,.16),
+  inset 6px 0 12px rgba(0,0,0,.08),
+  inset -6px 0 12px rgba(0,0,0,.08),
+  0 4px 6px rgba(0,0,0,.3),
+  0 12px 24px rgba(0,0,0,.4),
+  0 24px 56px rgba(0,0,0,.45),
+  0 0 100px rgba(126,207,126,.08);
+transition:transform .5s cubic-bezier(.4,0,.2,1),box-shadow .5s;transform:rotateX(3deg);transform-style:preserve-3d}
+.tamagotchi:hover{transform:rotateX(5deg) rotateY(-2deg) translateY(-6px);box-shadow:
+  inset 0 -14px 0 rgba(0,0,0,.25),
+  inset 0 8px 0 rgba(255,255,255,.16),
+  inset 6px 0 12px rgba(0,0,0,.08),
+  inset -6px 0 12px rgba(0,0,0,.08),
+  0 6px 10px rgba(0,0,0,.3),
+  0 18px 36px rgba(0,0,0,.4),
+  0 36px 72px rgba(0,0,0,.35),
+  0 0 140px rgba(126,207,126,.12)}
+.tamagotchi::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%) translateZ(6px);width:14px;height:14px;background:radial-gradient(circle,rgba(180,255,180,.5) 20%,rgba(76,175,80,.4) 50%,rgba(26,58,26,.8));border-radius:50%;border:1.5px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.3)}
+.tamagotchi::after{content:'RAISE PUNCH';position:absolute;bottom:12px;left:50%;transform:translateX(-50%) translateZ(3px);font-size:.26rem;color:rgba(255,255,255,.18);letter-spacing:3px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.tama-rim{position:absolute;inset:3px;border-radius:50% 50% 44% 44%/54% 54% 38% 38%;border:2px solid rgba(255,255,255,.06);pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.05) 0%,transparent 30%,transparent 80%,rgba(0,0,0,.05) 100%)}
+
+/* LCD */
+.lcd-bezel{position:relative;background:linear-gradient(180deg,#1a3a1a 0%,#0f2a0f 100%);border-radius:16px;padding:6px;margin-top:14px;transform:translateZ(6px);box-shadow:inset 0 2px 4px rgba(0,0,0,.4),inset 0 -1px 2px rgba(255,255,255,.05),0 4px 12px rgba(0,0,0,.3)}
+.lcd-screen{position:relative;background:linear-gradient(180deg,#8ad88a 0%,var(--screen) 30%,#6aba6a 100%);border-radius:11px;width:100%;aspect-ratio:4/3;overflow:hidden;box-shadow:inset 0 4px 10px rgba(0,0,0,.12),inset 0 -2px 6px rgba(255,255,255,.04),0 0 20px rgba(126,207,126,.2);image-rendering:pixelated;transition:background .5s}
+.lcd-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.015) 3px,rgba(0,0,0,.015) 4px);pointer-events:none;z-index:5}
+.lcd-screen::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.06) 100%);pointer-events:none;z-index:6;border-radius:11px}
+.game-canvas{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.sprites-container{display:flex;align-items:flex-end;justify-content:center;gap:2px;position:relative;filter:drop-shadow(0 3px 2px rgba(0,0,0,.12))}
+.punch-sprite{width:64px;height:64px;transition:transform .3s}
+.oran-mama-sprite{width:48px;height:56px;margin-left:4px}
+.lcd-status{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:.6rem;color:var(--sdark);z-index:4;letter-spacing:.3px}
+.lcd-name{position:absolute;top:6px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:.6rem;color:var(--sdark);z-index:4;opacity:.7}
+.action-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none;opacity:0;transition:opacity .3s}
+.action-overlay.active{opacity:1}
+.action-emoji{font-size:1.6rem;animation:aBounce .5s ease infinite}
+@keyframes aBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.15)}}
+
+/* Punch anims */
+@keyframes pIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes pSad{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(1px) rotate(-2deg)}75%{transform:translateY(1px) rotate(2deg)}}
+@keyframes pHappy{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-5px) scale(1.06)}50%{transform:translateY(0) scale(1)}75%{transform:translateY(-5px) scale(1.06)}}
+@keyframes pEat{0%{transform:rotate(0) scale(1)}15%{transform:rotate(-6deg) scale(1.25)}40%{transform:rotate(4deg) scale(1.3)}60%{transform:rotate(-3deg) scale(1.25)}85%{transform:rotate(2deg) scale(1.15)}100%{transform:rotate(0) scale(1)}}
+@keyframes pSleep{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(1px);opacity:.82}}
+@keyframes pCuddle{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+@keyframes pCry{0%,50%,100%{transform:translateY(0)}25%{transform:translateY(-3px)}75%{transform:translateY(-2px)}}
+@keyframes floatUp{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-28px);opacity:0}}
+.punch-idle .punch-sprite{animation:pIdle 2s ease-in-out infinite}
+.punch-happy .punch-sprite{animation:pHappy .8s ease-in-out infinite}
+.punch-sad .punch-sprite{animation:pSad 1.5s ease-in-out infinite}
+.punch-eating .punch-sprite{animation:pEat .7s ease-in-out infinite}
+.punch-sleeping .punch-sprite{animation:pSleep 3s ease-in-out infinite}
+.punch-cuddling .punch-sprite{animation:pCuddle 1s ease-in-out infinite}
+.punch-cuddling .oran-mama-sprite{animation:pCuddle 1s ease-in-out infinite reverse}
+.punch-crying .punch-sprite{animation:pCry .6s ease-in-out infinite}
+.zzz-float{position:absolute;top:6px;right:16%;font-size:.4rem;color:var(--sdark);z-index:4;opacity:0}
+.punch-sleeping .zzz-float{animation:floatUp 2s ease-in-out infinite}
+.sleep-timer{position:absolute;top:18px;left:0;right:0;text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;color:var(--sdark);z-index:4;opacity:0;transition:opacity .4s;letter-spacing:.5px}
+.sleep-timer.visible{opacity:1}
+.lcd-screen.sleeping-mode{background:linear-gradient(180deg,#4a8a4a 0%,#3a7a3a 100%)}
+.action-btn.wake-mode{background:linear-gradient(135deg,var(--gold),#ffe066)!important;color:var(--bg)!important;border-color:rgba(255,215,0,.4)!important;animation:sPulse 2s ease-in-out infinite;box-shadow:0 4px 16px rgba(255,215,0,.2)!important}
+.tear{position:absolute;width:4px;height:6px;background:#4a9a4a;border-radius:0 0 50% 50%;z-index:4}
+.tear-left{left:28%;top:44%}.tear-right{right:28%;top:44%}
+.punch-crying .tear{animation:floatUp 1s ease-in-out infinite}
+.heart-float{position:absolute;font-size:.5rem;z-index:4;opacity:0}
+.heart-1{top:5px;left:12%}.heart-2{top:9px;right:12%;animation-delay:.5s!important}.heart-3{top:3px;left:42%;animation-delay:1s!important}
+.punch-happy .heart-float{animation:floatUp 2s ease-in-out infinite}
+
+/* ===== STATS ===== */
+.stats-container{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;padding:0 4px;transform:translateZ(6px)}
+.stat-bar{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.18);border-radius:12px;padding:5px 8px 5px 6px;box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.03)}
+.stat-icon{font-size:.7rem;min-width:18px;text-align:center;filter:drop-shadow(0 0 3px rgba(255,255,255,.2))}
+.stat-track{flex:1;height:8px;background:rgba(0,0,0,.35);border-radius:8px;overflow:hidden;position:relative;box-shadow:inset 0 2px 3px rgba(0,0,0,.3)}
+.stat-fill{height:100%;border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1);position:relative}
+.stat-fill::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent);border-radius:8px 8px 0 0}
+.stat-fill.hunger{background:linear-gradient(90deg,#e6a800,var(--gold),#ffe066)}
+.stat-fill.happiness{background:linear-gradient(90deg,#e05599,#FF69B4,#ff8ec6)}
+.stat-fill.energy{background:linear-gradient(90deg,#0099cc,#00BFFF,#66d9ff)}
+.stat-fill.love{background:linear-gradient(90deg,#cc2222,var(--accent),#ff7777)}
+.stat-fill.low{animation:sPulse 1s ease-in-out infinite}
+@keyframes sPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ===== BUTTONS ===== */
+.actions-container{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:16px;padding:0 4px;transform:translateZ(4px)}
+.action-btn{font-family:'Nunito',sans-serif;font-weight:700;font-size:clamp(.55rem,1.4vw,.7rem);padding:14px 4px;background:linear-gradient(180deg,rgba(50,90,50,.9) 0%,rgba(28,60,28,.95) 40%,rgba(16,40,16,.98) 100%);color:var(--screen);border:1.5px solid rgba(76,175,80,.18);border-radius:16px;cursor:pointer;transition:all .15s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;align-items:center;gap:4px;user-select:none;box-shadow:0 5px 0 rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.1);position:relative}
+.action-btn:hover{background:linear-gradient(180deg,rgba(76,175,80,.4) 0%,rgba(46,125,50,.5) 40%,rgba(30,70,30,.6) 100%);border-color:rgba(76,175,80,.4);transform:translateY(-2px);box-shadow:0 7px 0 rgba(0,0,0,.3),0 12px 24px rgba(0,0,0,.3),0 0 18px rgba(126,207,126,.08),inset 0 1px 0 rgba(255,255,255,.12)}
+.action-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.2),inset 0 3px 6px rgba(0,0,0,.2)}
+.action-btn .btn-icon{font-size:1.2rem;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.action-btn.disabled{opacity:.25;pointer-events:none;filter:grayscale(.5)}
+
+/* ===== PET INFO PANEL ===== */
+.pet-info{max-width:380px;margin:16px auto 0;padding:0 4px;perspective:600px}
+.pet-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pet-info-card{background:linear-gradient(160deg,rgba(18,40,18,.75),rgba(8,22,8,.85));border:1px solid rgba(76,175,80,.12);border-radius:14px;padding:12px 10px;text-align:center;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 12px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.03)}
+.pet-info-card:hover{border-color:rgba(76,175,80,.3);transform:translateY(-2px) rotateX(2deg);box-shadow:0 8px 20px rgba(0,0,0,.25),0 0 12px rgba(126,207,126,.06)}
+.pet-info-card .pi-label{font-family:'Nunito',sans-serif;font-size:.58rem;color:var(--screen);opacity:.5;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.pet-info-card .pi-value{font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;color:var(--cream);display:block;line-height:1.4}
+.pet-info-card .pi-icon{font-size:1rem;display:block;margin-bottom:2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.pet-info-card.mood-card{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px}
+.pet-info-card.mood-card .pi-label{margin-bottom:0}
+.pet-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.pet-stat-mini{background:rgba(0,0,0,.15);border-radius:10px;padding:8px 4px;text-align:center;box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.02)}
+.pet-stat-mini .ps-num{font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;color:var(--gold);display:block;text-shadow:0 0 8px rgba(255,215,0,.15)}
+.pet-stat-mini .ps-label{font-family:'Nunito',sans-serif;font-size:.5rem;color:var(--screen);opacity:.45;display:block;margin-top:2px}
+
+/* ===== TABS ===== */
+.tabs-container{max-width:660px;margin:32px auto 0;padding:0 10px}
+.tabs-nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
+.tabs-nav::-webkit-scrollbar{display:none}
+.tab-btn{font-family:'Nunito',sans-serif;font-weight:700;font-size:clamp(.58rem,1.3vw,.72rem);padding:10px 16px;background:linear-gradient(180deg,rgba(26,58,26,.5),rgba(14,34,14,.6));color:var(--screen);border:1px solid rgba(76,175,80,.1);border-bottom:none;border-radius:14px 14px 0 0;cursor:pointer;transition:all .25s;white-space:nowrap;opacity:.55;position:relative}
+.tab-btn:hover{opacity:.8;background:linear-gradient(180deg,rgba(36,72,36,.6),rgba(20,46,20,.7))}
+.tab-btn.active{opacity:1;background:linear-gradient(160deg,rgba(14,34,14,.82),rgba(8,22,8,.88));border-color:rgba(76,175,80,.15);box-shadow:0 -4px 12px rgba(0,0,0,.15);z-index:1}
+.tab-btn.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(160deg,rgba(14,34,14,.82),rgba(8,22,8,.88))}
+.tabs-content{position:relative}
+.tab-panel{display:none;animation:tabFade .3s ease}
+.tab-panel.active{display:block}
+@keyframes tabFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== SHARE BUTTONS ===== */
+.share-row{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.share-btn{display:inline-flex;align-items:center;gap:5px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.6rem;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:all .25s;text-decoration:none;color:#fff}
+.share-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.share-btn.share-x{background:linear-gradient(135deg,#1a1a1a,#333)}
+.share-btn.share-x:hover{background:#000;border-color:rgba(255,255,255,.2)}
+.share-btn.share-fb{background:linear-gradient(135deg,#1877f2,#4293f5)}
+.share-btn.share-fb:hover{background:#1565c0}
+.share-btn.share-ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.share-btn.share-ig:hover{opacity:.9}
+
+/* ===== POOP ===== */
+.poop-sprite{position:absolute;bottom:28px;right:12px;font-size:1.4rem;opacity:0;transition:opacity .3s,transform .3s;transform:scale(0);z-index:5;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.poop-sprite.visible{opacity:1;transform:scale(1)}
+.poop-sprite.stink{animation:poopStink 1.5s ease-in-out infinite}
+@keyframes poopStink{0%,100%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.1) rotate(-5deg)}50%{transform:scale(1) rotate(0deg)}75%{transform:scale(1.1) rotate(5deg)}}
+.poop-stink{position:absolute;bottom:46px;right:18px;font-size:.6rem;opacity:0;z-index:6;pointer-events:none}
+.poop-stink.visible{animation:stinkWaft 2s ease-out infinite}
+@keyframes stinkWaft{0%{opacity:.7;transform:translateY(0) scale(.8)}100%{opacity:0;transform:translateY(-20px) scale(1.2)}}
+.action-btn.poop-alert{animation:poopPulse 1s ease-in-out infinite}
+@keyframes poopPulse{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.1)}50%{box-shadow:0 5px 0 rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.1),0 0 12px rgba(139,90,43,.4)}}
+
+/* ===== ACTIVITY LOG ===== */
+.activity-log{max-width:380px;margin:14px auto 0;padding:0 4px}
+.log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.log-header h3{font-size:.6rem;color:var(--primary);margin:0;text-shadow:0 0 8px rgba(126,207,126,.15)}
+.log-toggle{font-family:'Nunito',sans-serif;font-size:.55rem;font-weight:700;color:var(--screen);opacity:.5;background:none;border:1px solid rgba(76,175,80,.15);border-radius:8px;padding:4px 10px;cursor:pointer;transition:all .2s}
+.log-toggle:hover{opacity:.8;border-color:rgba(76,175,80,.3)}
+.log-list{max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(76,175,80,.2) transparent;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid rgba(76,175,80,.08);transition:max-height .3s ease}
+.log-list::-webkit-scrollbar{width:4px}
+.log-list::-webkit-scrollbar-thumb{background:rgba(76,175,80,.2);border-radius:4px}
+.log-list.collapsed{max-height:0;border-color:transparent;overflow:hidden}
+.log-entry{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.03);font-family:'Nunito',sans-serif;font-size:.62rem;color:var(--cream);opacity:.75;transition:background .15s}
+.log-entry:last-child{border-bottom:none}
+.log-entry:hover{background:rgba(76,175,80,.04)}
+.log-entry .log-icon{font-size:.85rem;flex-shrink:0}
+.log-entry .log-text{flex:1;line-height:1.5}
+.log-entry .log-time{font-size:.52rem;color:var(--screen);opacity:.4;flex-shrink:0;white-space:nowrap}
+.log-empty{text-align:center;padding:16px 10px;font-family:'Nunito',sans-serif;font-size:.6rem;color:var(--screen);opacity:.3}
+
+/* ===== ACTION BURST FX ===== */
+.action-burst{position:fixed;inset:0;pointer-events:none;z-index:2500;overflow:hidden}
+.action-burst .burst-particle{position:absolute;font-size:1.6rem;opacity:0;will-change:transform,opacity}
+
+/* Feed — bananas rain down */
+.action-burst.burst-feed .burst-particle{animation:burstFeed 1.6s ease-out forwards}
+@keyframes burstFeed{0%{opacity:1;transform:translateY(-60px) rotate(0deg) scale(.6)}40%{opacity:1}100%{opacity:0;transform:translateY(105vh) rotate(360deg) scale(1.1)}}
+
+/* Cuddle — hearts float up */
+.action-burst.burst-cuddle .burst-particle{animation:burstCuddle 2s ease-out forwards}
+@keyframes burstCuddle{0%{opacity:1;transform:translateY(40px) scale(.4)}30%{opacity:1;transform:translateY(-10px) scale(1.1)}100%{opacity:0;transform:translateY(-110vh) scale(.7)}}
+
+/* Sleep — stars drift down slowly */
+.action-burst.burst-sleep .burst-particle{animation:burstSleep 2.4s ease-in-out forwards}
+@keyframes burstSleep{0%{opacity:0;transform:translateY(-40px) scale(.3) rotate(0deg)}20%{opacity:.9}80%{opacity:.7}100%{opacity:0;transform:translateY(80vh) scale(.9) rotate(180deg)}}
+
+/* Games — confetti explode from center */
+.action-burst.burst-games .burst-particle{animation:burstGames 1.4s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes burstGames{0%{opacity:1;transform:translate(0,0) scale(.5) rotate(0deg)}100%{opacity:0;transform:translate(var(--bx),var(--by)) scale(1.2) rotate(var(--br))}}
+
+/* ===== GLASS CARDS ===== */
+.section{max-width:660px;margin:40px auto;padding:0 10px;perspective:800px}
+.glass-card{background:linear-gradient(160deg,rgba(14,34,14,.82),rgba(8,22,8,.88));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(76,175,80,.15);border-radius:24px;padding:30px 26px;margin-bottom:24px;box-shadow:0 16px 48px rgba(0,0,0,.3),0 6px 12px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.05);transition:all .4s cubic-bezier(.4,0,.2,1);transform:rotateX(1deg)}
+.glass-card:hover{border-color:rgba(76,175,80,.28);transform:rotateX(0deg) translateY(-3px);box-shadow:0 20px 56px rgba(0,0,0,.3),0 8px 16px rgba(0,0,0,.2),0 0 30px rgba(126,207,126,.06)}
+.glass-card h2{font-size:clamp(.55rem,1.8vw,.8rem);color:var(--primary);margin-bottom:16px;text-shadow:0 0 12px rgba(126,207,126,.2)}
+.glass-card p,.glass-card li{font-family:'Nunito',sans-serif;font-size:clamp(.78rem,1.6vw,.92rem);line-height:2;color:var(--cream);opacity:.85}
+.timeline{position:relative;padding-left:24px;margin-top:16px}
+.timeline::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,var(--primary),transparent);border-radius:2px}
+.timeline-item{position:relative;margin-bottom:20px;padding-left:18px}
+.timeline-item::before{content:'';position:absolute;left:-23px;top:6px;width:8px;height:8px;background:var(--primary);border-radius:50%;box-shadow:0 0 8px rgba(76,175,80,.4)}
+.timeline-date{font-family:'Nunito',sans-serif;font-weight:700;font-size:.72rem;color:var(--primary);margin-bottom:5px;letter-spacing:.5px}
+.timeline-text{font-family:'Nunito',sans-serif;font-size:clamp(.75rem,1.4vw,.88rem);color:var(--cream);line-height:2;opacity:.82}
+
+/* ===== TOKEN ===== */
+.token-section{text-align:center}
+.token-name{font-size:clamp(.9rem,2.8vw,1.5rem);color:var(--primary);text-shadow:0 0 24px rgba(126,207,126,.2);margin-bottom:10px;letter-spacing:2px}
+.token-ca{font-family:'Nunito',sans-serif;font-size:.72rem;color:var(--screen);opacity:.4;margin-bottom:16px;word-break:break-all}
+.token-desc{font-family:'Nunito',sans-serif;font-size:.82rem;color:var(--cream);line-height:2;margin-bottom:20px;opacity:.7}
+.token-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.token-btn{font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;padding:14px 28px;border-radius:16px;border:none;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);text-decoration:none;display:inline-flex;align-items:center;gap:8px;letter-spacing:.5px;position:relative}
+.token-btn.buy{background:linear-gradient(180deg,#5dbb63 0%,var(--primary) 50%,#2e7d32 100%);color:var(--bg);box-shadow:0 5px 14px rgba(0,0,0,.3),0 2px 4px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.15)}
+.token-btn.twitter{background:linear-gradient(180deg,rgba(76,175,80,.12),rgba(76,175,80,.04));color:var(--screen);border:1.5px solid rgba(76,175,80,.3);box-shadow:0 4px 10px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.04)}
+.token-btn:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(76,175,80,.25),0 4px 8px rgba(0,0,0,.2)}
+.token-btn.buy:hover{box-shadow:0 10px 28px rgba(76,175,80,.3),0 4px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.2)}
+.token-btn.twitter:hover{background:linear-gradient(180deg,rgba(76,175,80,.2),rgba(76,175,80,.08));border-color:rgba(76,175,80,.5)}
+.token-btn:active{transform:translateY(0);box-shadow:0 2px 6px rgba(0,0,0,.3),inset 0 2px 3px rgba(0,0,0,.1)}
+.footer{text-align:center;padding:32px 16px;font-family:'Nunito',sans-serif;font-size:.7rem;color:var(--screen);opacity:.3;line-height:2}
+
+/* ===== MINI GAME MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(3,8,3,.94);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(16px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:linear-gradient(160deg,rgba(14,34,14,.95),rgba(8,20,8,.98));border:1px solid rgba(76,175,80,.2);border-radius:24px;padding:24px;max-width:460px;width:94%;max-height:90vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.45),0 10px 20px rgba(0,0,0,.3),0 0 60px rgba(126,207,126,.08),inset 0 1px 0 rgba(255,255,255,.05);position:relative;transform:translateZ(0)}
+.modal-box h2{font-size:.6rem;color:var(--primary);text-align:center;margin-bottom:16px}
+.modal-close{position:absolute;top:12px;right:16px;font-size:.9rem;color:var(--screen);cursor:pointer;background:rgba(255,255,255,.05);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{color:var(--accent);background:rgba(255,68,68,.1)}
+
+/* Mini game selector */
+.mg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.mg-card{background:linear-gradient(180deg,rgba(32,64,32,.65) 0%,rgba(16,40,16,.75) 100%);border:1.5px solid rgba(76,175,80,.15);border-radius:18px;padding:18px 10px;text-align:center;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 10px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.04)}
+.mg-card:hover{border-color:rgba(76,175,80,.4);background:linear-gradient(180deg,rgba(76,175,80,.2) 0%,rgba(46,125,50,.25) 100%);transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.25),0 0 14px rgba(126,207,126,.08)}
+.mg-card .mg-icon{font-size:1.6rem;display:block;margin-bottom:8px;filter:drop-shadow(0 0 4px rgba(255,255,255,.1))}
+.mg-card .mg-title{font-family:'Nunito',sans-serif;font-weight:700;font-size:.72rem;color:var(--screen);display:block;margin-bottom:4px}
+.mg-card .mg-stat{font-family:'Nunito',sans-serif;font-size:.62rem;color:var(--gold);display:block;opacity:.8}
+
+/* Mini game play area */
+.mg-play{display:none;position:relative}
+.mg-play.active{display:block}
+.mg-play canvas{display:block;margin:0 auto;border:2px solid rgba(76,175,80,.3);border-radius:14px;background:#0a1a0a;image-rendering:pixelated;max-width:100%;touch-action:none}
+.mg-play .mg-score{text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;color:var(--gold);margin:10px 0}
+.mg-play .mg-timer{text-align:center;font-family:'Nunito',sans-serif;font-size:.72rem;color:var(--screen);margin-bottom:8px;opacity:.7}
+.mg-back{font-family:'Nunito',sans-serif;font-weight:700;font-size:.75rem;padding:10px 20px;background:rgba(26,58,26,.6);color:var(--screen);border:1.5px solid rgba(76,175,80,.25);border-radius:12px;cursor:pointer;display:block;margin:10px auto 0;transition:all .25s}
+.mg-back:hover{background:rgba(76,175,80,.2);border-color:rgba(76,175,80,.5)}
+.mg-result{text-align:center;padding:20px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;color:var(--gold);line-height:2.2}
+
+@media(max-width:480px){
+.tamagotchi{padding:16px 12px 22px}
+.stats-container{grid-template-columns:1fr;gap:5px}
+.actions-container{grid-template-columns:repeat(5,1fr);gap:4px}
+.glass-card{padding:20px 16px;border-radius:20px}
+.mg-grid{grid-template-columns:1fr 1fr;gap:6px}
+}
+</style>
+</head>
+<body>
+<canvas id="jungleBg"></canvas>
+<canvas id="firefliesCanvas"></canvas>
+<canvas id="jungleFg"></canvas>
+
+<!-- NAMING -->
+<div class="naming-overlay" id="namingOverlay">
+<div class="naming-box">
+<h2>🐒 A Baby Needs You!</h2>
+<canvas id="previewCanvas" width="64" height="64" style="width:72px;height:72px;image-rendering:pixelated;margin:12px auto;display:block"></canvas>
+<p>A tiny Japanese macaque was rejected at birth. He needs someone to raise him.</p>
+<input type="text" id="nameInput" placeholder="Name your Punch..." maxlength="12" autofocus>
+<br><button onclick="startGame()">Begin Raising!</button>
+</div>
+</div>
+
+<!-- MINI GAMES MODAL -->
+<div class="modal-overlay" id="mgModal">
+<div class="modal-box">
+<button class="modal-close" onclick="closeMiniGames()">✕</button>
+<h2>🎮 Mini Games</h2>
+<div id="mgSelector">
+<div class="mg-grid">
+<div class="mg-card" onclick="launchMG('banana')"><span class="mg-icon">🍌</span><span class="mg-title">Banana Catch</span><span class="mg-stat">+Hunger</span></div>
+<div class="mg-card" onclick="launchMG('memory')"><span class="mg-icon">🧠</span><span class="mg-title">Memory Match</span><span class="mg-stat">+Happiness</span></div>
+<div class="mg-card" onclick="launchMG('dodge')"><span class="mg-icon">🙈</span><span class="mg-title">Dodge Bully</span><span class="mg-stat">+Love</span></div>
+<div class="mg-card" onclick="launchMG('groom')"><span class="mg-icon">✨</span><span class="mg-title">Grooming</span><span class="mg-stat">+Energy</span></div>
+</div>
+</div>
+<!-- Banana Catch -->
+<div class="mg-play" id="mgBanana">
+<div class="mg-timer" id="bananaTimer">Time: 20s</div>
+<canvas id="bananaCanvas" width="360" height="300"></canvas>
+<div class="mg-score" id="bananaScore">🍌 0</div>
+<button class="mg-back" onclick="endMG()">Back</button>
+</div>
+<!-- Memory Match -->
+<div class="mg-play" id="mgMemory">
+<div class="mg-timer" id="memoryTimer">Pairs: 0/6</div>
+<div id="memoryGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:320px;margin:0 auto"></div>
+<div class="mg-score" id="memoryScore"></div>
+<button class="mg-back" onclick="endMG()">Back</button>
+</div>
+<!-- Dodge Bully -->
+<div class="mg-play" id="mgDodge">
+<div class="mg-timer" id="dodgeTimer">Time: 20s</div>
+<canvas id="dodgeCanvas" width="360" height="300"></canvas>
+<div class="mg-score" id="dodgeScore">❤️ 0 hits</div>
+<button class="mg-back" onclick="endMG()">Back</button>
+</div>
+<!-- Grooming -->
+<div class="mg-play" id="mgGroom">
+<div class="mg-timer" id="groomTimer">Spots: 0/8</div>
+<canvas id="groomCanvas" width="360" height="300"></canvas>
+<div class="mg-score" id="groomScore"></div>
+<button class="mg-back" onclick="endMG()">Back</button>
+</div>
+<!-- Result -->
+<div class="mg-play" id="mgResult"><div class="mg-result" id="mgResultText"></div><button class="mg-back" onclick="endMG()">Back to Games</button></div>
+</div>
+</div>
+
+<div class="content-wrap">
+<header class="header">
+<h1>🐵 RAISE PUNCH 🍌</h1>
+<p>Raise your own baby Japanese macaque — a Tamagotchi love story</p>
+</header>
+
+<div class="device-container">
+<div class="tamagotchi">
+<div class="tama-rim"></div>
+<div class="lcd-bezel">
+<div class="lcd-screen" id="lcdScreen">
+<div class="lcd-name" id="lcdName"></div>
+<div class="game-canvas"><div class="sprites-container" id="spritesContainer">
+<canvas id="punchCanvas" class="punch-sprite" width="64" height="64" style="width:64px;height:64px;image-rendering:pixelated"></canvas>
+<canvas id="oranCanvas" class="oran-mama-sprite" width="48" height="56" style="width:48px;height:56px;image-rendering:pixelated"></canvas>
+</div></div>
+<canvas id="feedScene" width="320" height="240" style="position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;opacity:0;transition:opacity .3s;image-rendering:pixelated"></canvas>
+<div class="zzz-float" id="zzzFloat">Z z z</div>
+<div class="sleep-timer" id="sleepTimer">💤 0h 0m 0s</div>
+<div class="tear tear-left" id="tearL" style="display:none"></div>
+<div class="tear tear-right" id="tearR" style="display:none"></div>
+<div class="heart-float heart-1">❤️</div>
+<div class="heart-float heart-2">💕</div>
+<div class="heart-float heart-3">❤️</div>
+<div class="poop-sprite" id="poopSprite">💩</div>
+<div class="poop-stink" id="poopStink">💨</div>
+<div class="action-overlay" id="actionOverlay"><span class="action-emoji" id="actionEmoji"></span></div>
+<div class="lcd-status" id="lcdStatus">Waiting...</div>
+</div>
+</div>
+<div class="stats-container">
+<div class="stat-bar"><span class="stat-icon">🍌</span><div class="stat-track"><div class="stat-fill hunger" id="hungerBar" style="width:80%"></div></div></div>
+<div class="stat-bar"><span class="stat-icon">😊</span><div class="stat-track"><div class="stat-fill happiness" id="happinessBar" style="width:80%"></div></div></div>
+<div class="stat-bar"><span class="stat-icon">⚡</span><div class="stat-track"><div class="stat-fill energy" id="energyBar" style="width:80%"></div></div></div>
+<div class="stat-bar"><span class="stat-icon">❤️</span><div class="stat-track"><div class="stat-fill love" id="loveBar" style="width:80%"></div></div></div>
+</div>
+<div class="actions-container">
+<button class="action-btn" onclick="doAction('feed')"><span class="btn-icon">🍌</span>Feed</button>
+<button class="action-btn" onclick="doAction('cuddle')"><span class="btn-icon">🧸</span>Cuddle</button>
+<button class="action-btn" id="btnSleep" onclick="toggleSleep()"><span class="btn-icon">💤</span>Sleep</button>
+<button class="action-btn" onclick="openMiniGames()"><span class="btn-icon">🎮</span>Games</button>
+<button class="action-btn" id="btnClean" onclick="cleanPoop()"><span class="btn-icon">🧹</span>Clean</button>
+</div>
+</div>
+</div>
+
+<div class="pet-info">
+<div class="pet-info-grid">
+<div class="pet-info-card"><span class="pi-icon">📅</span><span class="pi-label">Age</span><span class="pi-value" id="piAge">0 days</span></div>
+<div class="pet-info-card"><span class="pi-icon">⚖️</span><span class="pi-label">Weight</span><span class="pi-value" id="piWeight">0.3 kg</span></div>
+<div class="pet-info-card"><span class="pi-icon">🗓️</span><span class="pi-label">Today</span><span class="pi-value" id="piDay">—</span></div>
+<div class="pet-info-card"><span class="pi-icon">🕐</span><span class="pi-label">Time</span><span class="pi-value" id="piTime">—</span></div>
+<div class="pet-info-card mood-card"><span class="pi-icon" id="piMoodIcon">😊</span><span class="pi-label">Mood:</span><span class="pi-value" id="piMood">Happy</span></div>
+</div>
+<div class="pet-stats-row" style="grid-template-columns:repeat(4,1fr)">
+<div class="pet-stat-mini"><span class="ps-num" id="psFed">0</span><span class="ps-label">Fed</span></div>
+<div class="pet-stat-mini"><span class="ps-num" id="psCuddled">0</span><span class="ps-label">Cuddled</span></div>
+<div class="pet-stat-mini"><span class="ps-num" id="psPlayed">0</span><span class="ps-label">Played</span></div>
+<div class="pet-stat-mini"><span class="ps-num" id="psCleaned">0</span><span class="ps-label">Cleaned</span></div>
+</div>
+<div class="share-row">
+<a class="share-btn share-x" onclick="sharePet('x')" href="javascript:void(0)">𝕏 Share</a>
+<a class="share-btn share-fb" onclick="sharePet('fb')" href="javascript:void(0)">📘 Share</a>
+<a class="share-btn share-ig" onclick="sharePet('ig')" href="javascript:void(0)">📸 Share</a>
+</div>
+</div>
+
+<div class="activity-log">
+<div class="log-header">
+<h3>📋 Activity Log</h3>
+<button class="log-toggle" onclick="toggleLog()">Hide</button>
+</div>
+<div class="log-list" id="logList">
+<div class="log-empty" id="logEmpty">No activities yet — start caring for Punch!</div>
+</div>
+</div>
+
+<!-- TABBED CONTENT -->
+<div class="tabs-container">
+<div class="tabs-nav">
+<button class="tab-btn active" onclick="switchTab('guide')">🎮 Guide</button>
+<button class="tab-btn" onclick="switchTab('story')">📖 Punch</button>
+<button class="tab-btn" onclick="switchTab('tama')">🥚 Tamagotchi</button>
+<button class="tab-btn" onclick="switchTab('macaque')">🐒 Macaques</button>
+<button class="tab-btn" onclick="switchTab('oranmama')">🧸 Oran-Mama</button>
+<button class="tab-btn" onclick="switchTab('community')">🌿 Community</button>
+</div>
+<div class="tabs-content">
+
+<!-- TAB: Guide -->
+<div class="tab-panel active" id="tab-guide"><div class="glass-card" style="border-radius:0 14px 24px 24px;margin-bottom:0">
+<h2>🎮 How to Raise Your Punch</h2>
+<p>Welcome, caretaker! Your Punch depends on you. Here's how to keep him happy and healthy:</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🍌 Feed</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Give Punch a banana when he's hungry. Watch him puff up with joy! Each feeding adds weight and fills his Hunger bar.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🧸 Cuddle</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Punch loves hugging Oran-Mama. Cuddling fills his Love and Happiness bars. He'll blush and snuggle close.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">💤 Sleep</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Put Punch to bed to restore Energy. You'll see how long he sleeps — even if you close the browser and come back later!</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🎮 Mini Games</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Play 4 different games to boost Punch's stats: catch bananas, match cards, dodge bullies, or groom his fur!</p>
+</div>
+</div>
+<p style="margin-top:14px;font-size:.72rem;opacity:.6;text-align:center">💡 Tip: Stats decay over time — even when you're away. Check on Punch often!</p>
+</div></div>
+
+<!-- TAB: Punch Story -->
+<div class="tab-panel" id="tab-story"><div class="glass-card" style="border-radius:0 14px 24px 24px;margin-bottom:0">
+<h2>📖 The Story of Punch</h2>
+<p>Punch is a real baby Japanese macaque whose journey from rejection to acceptance touched millions of hearts around the world. This is his true story.</p>
+<div class="timeline">
+<div class="timeline-item"><div class="timeline-date">July 3, 2025 — Birth</div><div class="timeline-text">Punch was born at a wildlife park in Japan into a troop of Japanese macaques. Within hours, his mother rejected him — refusing to nurse or hold him. Park staff found the tiny newborn alone, shivering, and barely clinging to life. He weighed just 350 grams.</div></div>
+<div class="timeline-item"><div class="timeline-date">July 5, 2025 — Meeting Oran-Mama</div><div class="timeline-text">Caretakers placed an IKEA Djungelskog orangutan plush in Punch's incubator. The moment his tiny hands touched the soft orange fur, he grabbed on and never let go. Staff named the plush "Oran-Mama." From that day forward, Punch treated her as his real mother — sleeping on her, clinging to her, and crying whenever she was taken for washing.</div></div>
+<div class="timeline-item"><div class="timeline-date">July – August 2025 — First Steps</div><div class="timeline-text">Hand-raised on formula by dedicated caretakers, Punch slowly gained strength. He opened his eyes fully at two weeks, began gripping with his feet at three weeks, and took his first wobbly steps at one month — always returning to Oran-Mama's embrace. His big, expressive eyes and tiny pink face made him an instant favorite among staff.</div></div>
+<div class="timeline-item"><div class="timeline-date">September 2025 — Going Viral</div><div class="timeline-text">Photos of Punch clutching his orange plush mother went viral on social media. Millions fell in love with the tiny macaque who refused to give up. "Punch and Oran-Mama" became a symbol of resilience and the power of comfort objects. Fan art, memes, and tribute videos flooded the internet.</div></div>
+<div class="timeline-item"><div class="timeline-date">Oct 2025 – Jan 2026 — Growing Up</div><div class="timeline-text">Punch grew from a fragile infant into a curious, energetic juvenile. He learned to climb branches, crack nuts, and forage for food — but always kept Oran-Mama within arm's reach. Caretakers noted his remarkable intelligence and stubborn determination. He was small for his age but fierce in spirit.</div></div>
+<div class="timeline-item"><div class="timeline-date">Early February 2026 — Facing the Troop</div><div class="timeline-text">The time came to introduce Punch to his troop. It did not go well. Older macaques pushed him, bit him, and chased him away. In macaque society, a motherless juvenile is an outsider. Punch was bullied relentlessly. But every morning, he returned to the troop enclosure — bruised but unbroken, with Oran-Mama tucked under his arm.</div></div>
+<div class="timeline-item"><div class="timeline-date">Mid February 2026 — A Turning Point</div><div class="timeline-text">After two weeks of daily rejection, something changed. An older female macaque approached Punch and began grooming him — picking through his fur gently. In macaque culture, grooming is the highest sign of acceptance and social bonding. Other troop members watched. Then, one by one, they stopped chasing him away.</div></div>
+<div class="timeline-item"><div class="timeline-date">Late February 2026 — Accepted</div><div class="timeline-text">Punch was officially part of the troop. He played with other juveniles, shared food, and even groomed others back. But every evening, when the troop settled down to sleep, Punch would quietly retrieve Oran-Mama from his corner and curl up with her. The caretakers say he still does this every single night. 🧡</div></div>
+</div>
+</div></div>
+
+<!-- TAB: Tamagotchi History -->
+<div class="tab-panel" id="tab-tama"><div class="glass-card" style="border-radius:0 14px 24px 24px;margin-bottom:0">
+<h2>🥚 The History of Tamagotchi</h2>
+<p>Raise Punch is inspired by one of the most beloved toys ever created. Here's the story behind the virtual pet revolution.</p>
+<div class="timeline">
+<div class="timeline-item"><div class="timeline-date">1996 — The Idea</div><div class="timeline-text">Aki Maita, a Bandai employee, came up with the concept after seeing a TV commercial about a boy who wanted to bring his pet turtle to school. She imagined a portable digital pet that could live in your pocket — something you'd care for, feed, and love, anywhere you went.</div></div>
+<div class="timeline-item"><div class="timeline-date">November 23, 1996 — Launch Day</div><div class="timeline-text">The first Tamagotchi launched in Japan. The egg-shaped keychain device with its tiny LCD screen sold out instantly. Within months, over 40 million units were sold worldwide. Children — and adults — became obsessed with keeping their digital pets alive.</div></div>
+<div class="timeline-item"><div class="timeline-date">1997 — Global Phenomenon</div><div class="timeline-text">Tamagotchi mania swept the world. Schools banned them because students couldn't stop checking on their pets during class. The devices were so popular that Bandai couldn't manufacture them fast enough. A black market emerged, with rare colors selling for hundreds of dollars.</div></div>
+<div class="timeline-item"><div class="timeline-date">1997 — Cultural Impact</div><div class="timeline-text">Tamagotchi wasn't just a toy — it was a cultural moment. It taught an entire generation about responsibility, empathy, and the emotional bonds we form with digital creatures. When a Tamagotchi "died," children genuinely grieved. Psychologists studied the phenomenon, calling it one of the first examples of human-digital emotional attachment.</div></div>
+<div class="timeline-item"><div class="timeline-date">2004 – 2023 — Evolution</div><div class="timeline-text">Bandai released dozens of Tamagotchi versions over the years: Tamagotchi Connection (with infrared linking), Tamagotchi Friends, Tamagotchi ON (with Bluetooth), and the Tamagotchi Smart (a wristwatch). Each generation added new features, but the core remained the same: care for a creature that depends on you.</div></div>
+<div class="timeline-item"><div class="timeline-date">2025 — Raise Punch</div><div class="timeline-text">Raise Punch brings the Tamagotchi spirit into the modern web — combining the emotional caregiving loop with a real story. Instead of a generic digital pet, you're raising Punch: a real baby macaque who was rejected, found comfort in a plush toy, and fought his way to acceptance. Every banana you feed, every cuddle you give, echoes the real care that saved his life.</div></div>
+</div>
+</div></div>
+
+<!-- TAB: Macaques -->
+<div class="tab-panel" id="tab-macaque"><div class="glass-card" style="border-radius:0 14px 24px 24px;margin-bottom:0">
+<h2>🐒 About Japanese Macaques</h2>
+<p>Punch is a Japanese macaque (Macaca fuscata) — one of the most fascinating primates on Earth.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1rem;margin-bottom:4px">❄️ Snow Monkeys</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">The northernmost-living non-human primates. They survive -20°C winters in the mountains of Honshu and are famous for bathing in natural hot springs to stay warm.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1rem;margin-bottom:4px">🧠 Highly Intelligent</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">They wash sweet potatoes in the ocean before eating — a cultural behavior first observed in 1953 that spread through the entire troop via social learning across generations.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1rem;margin-bottom:4px">👨‍👩‍👧‍👦 Complex Society</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Troops have strict hierarchies led by an alpha female. Grooming maintains social bonds — the same behavior that signaled Punch's acceptance. Up to 4 hours a day!</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1rem;margin-bottom:4px">🎾 Playful Nature</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Young macaques love wrestling, chasing, and making snowballs for fun — one of the few animals that play with objects recreationally with no practical purpose.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1rem;margin-bottom:4px">😢 Maternal Bonds</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Mother-infant bonds are incredibly strong. When a baby is rejected — as Punch was — it's extremely rare for the infant to survive without human intervention.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1rem;margin-bottom:4px">🌍 Conservation</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Listed as "Least Concern" by the IUCN but face habitat loss threats. Wildlife parks like Punch's play a crucial role in education and conservation.</p>
+</div>
+</div>
+</div></div>
+
+<!-- TAB: Oran-Mama -->
+<div class="tab-panel" id="tab-oranmama"><div class="glass-card" style="border-radius:0 14px 24px 24px;margin-bottom:0">
+<h2>🧸 Oran-Mama — The IKEA Bear That Saved a Life</h2>
+<p>Punch's surrogate mother isn't a real orangutan — she's a stuffed toy. But to Punch, she's everything. Meet the unlikely hero of this story.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🏷️ The Product</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Oran-Mama is an <strong style="color:var(--gold)">IKEA DJUNGELSKOG</strong> soft toy — a 66cm (26") orangutan plush from IKEA's beloved jungle animal collection. Launched in 2018, the Djungelskog line features bears, tigers, pandas, and orangutans, all designed with a friendly, huggable aesthetic. The orangutan retails for around $12.99 — making it one of the most affordable heroes in animal rescue history.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🌍 The Name</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">"Djungelskog" means <strong style="color:var(--gold)">"jungle forest"</strong> in Swedish — fitting for IKEA's Scandinavian roots. The park caretakers named the plush "Oran-Mama" — a combination of "orangutan" and "mama" — because Punch immediately treated her as his real mother from the moment they met.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🧡 Why It Works</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Primatologists have long known that orphaned primates need a "contact comfort" object — something soft and warm to cling to. This echoes <strong style="color:var(--gold)">Harry Harlow's famous 1958 experiments</strong>, which proved that baby monkeys preferred a soft cloth "mother" over a wire one that provided food. Punch's attachment to Oran-Mama is the same instinct: warmth and softness mean safety.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">📱 Internet Fame</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">After Punch went viral, IKEA Djungelskog orangutan plushes <strong style="color:var(--gold)">sold out worldwide</strong>. Fans bought them in solidarity, posting photos with the hashtag #OranMama. Some IKEA stores reported 10x normal sales. The plush became a symbol of comfort, resilience, and the idea that love can come from the most unexpected places.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">🛁 Wash Day Drama</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Caretakers need to wash Oran-Mama regularly for hygiene. Every wash day is a <strong style="color:var(--gold)">mini crisis</strong> — Punch screams, searches frantically, and refuses to eat until she's returned. Staff now keep a second Djungelskog as a backup, but Punch can tell the difference and clearly prefers the original. He knows his mama by scent.</p>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:14px 12px">
+<div style="font-size:1.1rem;margin-bottom:4px">💤 Bedtime Ritual</div>
+<p style="font-size:.75rem;line-height:1.8;opacity:.8">Even now that Punch is accepted by his troop and plays with other macaques all day, he <strong style="color:var(--gold)">still sleeps with Oran-Mama every single night</strong>. He retrieves her from his corner, wraps both arms around her orange fur, buries his face in her chest, and falls asleep. The caretakers say they've never seen anything like it.</p>
+</div>
+</div>
+
+<div style="margin-top:16px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.15);border-radius:14px;padding:16px 14px;text-align:center">
+<p style="font-size:.78rem;line-height:1.9;opacity:.85;margin:0">🧸 <strong style="color:var(--primary)">Fun fact:</strong> In the game, when you press "Cuddle," Punch hugs Oran-Mama — just like the real Punch does dozens of times every day. The orange blob next to him on the LCD screen? That's her.</p>
+</div>
+</div></div>
+
+<!-- TAB: Community -->
+<div class="tab-panel" id="tab-community"><div class="glass-card" style="border-radius:0 14px 24px 24px;margin-bottom:0">
+<h2>🌿 The Raise Punch Community</h2>
+<p>Raise Punch isn't just a game — it's a movement. A community of people who believe that every creature deserves love.</p>
+<div style="display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px">
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:16px 14px;display:flex;align-items:flex-start;gap:12px">
+<span style="font-size:1.4rem">🤝</span>
+<div><p style="font-size:.78rem;line-height:1.9;opacity:.85"><strong style="color:var(--primary)">Our Mission:</strong> To spread Punch's story and remind the world that resilience, love, and a good plush friend can overcome anything. A portion of all $RAISE proceeds will be donated to primate conservation and wildlife rehabilitation programs.</p></div>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:16px 14px;display:flex;align-items:flex-start;gap:12px">
+<span style="font-size:1.4rem">🎨</span>
+<div><p style="font-size:.78rem;line-height:1.9;opacity:.85"><strong style="color:var(--primary)">Fan Creations:</strong> The community has produced incredible fan art, animations, and stories about Punch. From pixel art to oil paintings, Punch has inspired artists worldwide. Share your creations with #RaisePunch!</p></div>
+</div>
+<div style="background:rgba(0,0,0,.1);border-radius:14px;padding:16px 14px;display:flex;align-items:flex-start;gap:12px">
+<span style="font-size:1.4rem">📊</span>
+<div><p style="font-size:.78rem;line-height:1.9;opacity:.85"><strong style="color:var(--primary)">Global Stats:</strong> Thousands of virtual Punches are being raised right now across the world. Every banana fed, every cuddle given, and every mini-game played is a small act of digital love that echoes the real care Punch received.</p></div>
+</div>
+</div>
+</div></div>
+
+</div>
+</div>
+
+<!-- TOKEN -->
+<section class="section"><div class="glass-card token-section">
+<div class="token-name">$RAISE</div>
+<div class="token-ca">CA: Coming Soon...</div>
+<p class="token-desc">Every holder is a caretaker. Every transaction is an act of love. Join the community raising Punch — the bravest baby macaque in the world.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0;text-align:center">
+<div style="background:rgba(0,0,0,.1);border-radius:12px;padding:12px 6px"><div style="font-size:1rem">🍌</div><div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;color:var(--gold)">Feed to Earn</div><div style="font-family:'Nunito',sans-serif;font-size:.55rem;color:var(--cream);opacity:.5;margin-top:2px">Care = Rewards</div></div>
+<div style="background:rgba(0,0,0,.1);border-radius:12px;padding:12px 6px"><div style="font-size:1rem">🌿</div><div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;color:var(--gold)">Conservation</div><div style="font-family:'Nunito',sans-serif;font-size:.55rem;color:var(--cream);opacity:.5;margin-top:2px">Real donations</div></div>
+<div style="background:rgba(0,0,0,.1);border-radius:12px;padding:12px 6px"><div style="font-size:1rem">❤️</div><div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;color:var(--gold)">Community</div><div style="font-family:'Nunito',sans-serif;font-size:.55rem;color:var(--cream);opacity:.5;margin-top:2px">Global family</div></div>
+</div>
+<div class="token-buttons">
+<a href="#" class="token-btn buy">🍌 Buy $RAISE</a>
+<a href="https://twitter.com/RaisePunch" target="_blank" rel="noopener" class="token-btn twitter">🐦 @RaisePunch</a>
+</div>
+</div></section>
+
+<footer class="footer">Made with ❤️ for Punch — the bravest baby macaque in the world<br>Inspired by the real Punch, born July 2025 at a wildlife park in Japan<br>© 2025-2026 Raise Punch Community</footer>
+</div>
+
+<script>
+/* ============================================================
+   TABS & SHARING
+   ============================================================ */
+function switchTab(id){
+document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+document.getElementById('tab-'+id).classList.add('active');
+event.currentTarget.classList.add('active');
+}
+
+function sharePet(platform){
+const s=localStorage.getItem('raisePunchSave');
+if(!s)return;
+const g=JSON.parse(s);
+const ageMs=Date.now()-(g.created||Date.now());
+const days=Math.floor(ageMs/86400000);
+const avg=Math.round((g.hunger+g.happiness+g.energy+g.love)/4);
+let mood='chillin';
+if(avg>85)mood='ecstatic';else if(avg>70)mood='happy';else if(avg>50)mood='content';else if(avg<20)mood='sad';
+const text='🐵 My pet '+g.name+' is '+days+'d old, weighs '+g.weight.toFixed(1)+'kg, and is feeling '+mood+'! Fed '+g.feedCount+'x, cuddled '+g.cuddleCount+'x, played '+g.playCount+'x games. Raise your own Punch! 🍌 #RaisePunch';
+const url=encodeURIComponent(window.location.href);
+const t=encodeURIComponent(text);
+let shareUrl='';
+if(platform==='x'){
+shareUrl='https://twitter.com/intent/tweet?text='+t+'&url='+url;
+}else if(platform==='fb'){
+shareUrl='https://www.facebook.com/sharer/sharer.php?u='+url+'&quote='+t;
+}else if(platform==='ig'){
+// Instagram doesn't have a web share URL — copy to clipboard instead
+navigator.clipboard.writeText(text+' '+window.location.href).then(()=>{
+alert('📸 Copied to clipboard! Paste it in your Instagram story or post.');
+}).catch(()=>{
+prompt('📸 Copy this to share on Instagram:',text+' '+window.location.href);
+});
+return;
+}
+window.open(shareUrl,'_blank','width=600,height=400');
+}
+
+/* ============================================================
+   ACTIVITY LOG
+   ============================================================ */
+const LOG_ICONS={feed:'🍌',cuddle:'🧸',sleep:'💤',wake:'☀️',game:'🎮',poop:'💩',clean:'🧹'};
+const LOG_MAX=50;
+
+function addLog(type,text){
+if(!gs.activityLog)gs.activityLog=[];
+gs.activityLog.unshift({type:type,text:text,time:Date.now()});
+if(gs.activityLog.length>LOG_MAX)gs.activityLog.length=LOG_MAX;
+save();
+renderLog();
+}
+
+function renderLog(){
+const list=document.getElementById('logList');
+const empty=document.getElementById('logEmpty');
+if(!gs.activityLog||gs.activityLog.length===0){
+list.innerHTML='';
+list.appendChild(empty);
+empty.style.display='block';
+return;
+}
+if(empty)empty.style.display='none';
+let html='';
+gs.activityLog.forEach(e=>{
+const d=new Date(e.time);
+const hh=d.getHours().toString().padStart(2,'0');
+const mm=d.getMinutes().toString().padStart(2,'0');
+const mon=d.toLocaleString('en',{month:'short'});
+const day=d.getDate();
+const timeStr=mon+' '+day+', '+hh+':'+mm;
+const icon=LOG_ICONS[e.type]||'📝';
+html+='<div class="log-entry"><span class="log-icon">'+icon+'</span><span class="log-text">'+e.text+'</span><span class="log-time">'+timeStr+'</span></div>';
+});
+list.innerHTML=html;
+}
+
+function toggleLog(){
+const list=document.getElementById('logList');
+const btn=document.querySelector('.log-toggle');
+list.classList.toggle('collapsed');
+btn.textContent=list.classList.contains('collapsed')?'Show':'Hide';
+}
+
+function updateDayTime(){
+const now=new Date();
+const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dayEl=document.getElementById('piDay');
+const timeEl=document.getElementById('piTime');
+if(dayEl)dayEl.textContent=days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate();
+if(timeEl)timeEl.textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+}
+
+/* ============================================================
+   POOP SYSTEM
+   ============================================================ */
+const POOP_INTERVAL=45000; // chance to poop every 45s
+const POOP_CHANCE=0.35; // 35% chance each check
+
+function checkPoop(){
+if(gs.sleeping||gs.poopOnScreen)return;
+const now=Date.now();
+if(now-gs.lastPoopTime<POOP_INTERVAL)return;
+if(Math.random()<POOP_CHANCE){
+spawnPoop();
+}
+gs.lastPoopTime=now;
+}
+
+function spawnPoop(){
+if(gs.sleeping)return;
+stopIdlePlay();
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.add('disabled'));
+playPoopScene(()=>{
+gs.poopOnScreen=true;
+gs.lastPoopTime=Date.now();
+save();
+updatePoopUI();
+addLog('poop',gs.name+' made a mess! 💩 Clean it up!');
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('disabled'));
+updateDisp();startIdlePlay();
+});
+}
+
+function cleanPoop(){
+if(!gs.poopOnScreen)return;
+stopIdlePlay();
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.add('disabled'));
+gs.poopOnScreen=false;
+gs.cleanCount=(gs.cleanCount||0)+1;
+gs.happiness=Math.min(100,gs.happiness+10);
+save();
+updatePoopUI();
+playShowerScene(()=>{
+triggerBurst('feed');
+addLog('clean',gs.name+' took a shower! 🚿 Happy +10 (Cleaned '+gs.cleanCount+'x total)');
+document.getElementById('lcdStatus').textContent=gs.name+' is squeaky clean! ✨';
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('disabled'));
+updateDisp();renderSpr();startIdlePlay();
+});
+}
+
+/* ============================================================
+   POOP CUTSCENE — GOING TO BATHROOM
+   ============================================================ */
+function playPoopScene(onDone){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',NOSE='#4a3728',BLUSH='#FF9999';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+let frame=0;
+const TOTAL=120;
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawBathroom(){
+// walls — tiled
+rect(0,0,80,60,'#d4e8d4');
+for(let i=0;i<80;i+=4){for(let j=0;j<42;j+=4){
+cx.fillStyle=(i+j)%8===0?'rgba(0,0,0,0.02)':'rgba(255,255,255,0.02)';
+cx.fillRect(i*P,j*P,4*P,4*P);
+}}
+// floor tiles
+rect(0,42,80,18,'#c8b8a0');
+for(let i=0;i<80;i+=6){cx.fillStyle='rgba(0,0,0,0.03)';cx.fillRect(i*P,42*P,3*P,18*P)}
+// toilet
+rect(54,28,14,4,'#f0f0f0');rect(55,32,12,8,'#e8e8e8');rect(56,40,10,3,'#ddd');
+rect(55,26,12,2,'#e0e0e0');rect(57,24,8,2,'#d8d8d8');// tank
+rect(56,28,10,1,'#f8f8f8');// seat rim
+// toilet paper roll
+rect(50,30,3,4,'#f5f5f5');rect(50,30,3,1,'#eee');rect(49,34,1,3,'#f0f0f0');
+// small rug
+rect(52,41,16,2,'#a0c8e0');rect(53,40,14,1,'#90b8d0');
+// towel rack
+rect(4,10,2,20,'#8B6914');rect(3,10,4,1,'#a08030');
+rect(3,12,4,8,'#e0a0a0');rect(3,13,4,6,'#d89090');// towel
+// mirror
+rect(20,6,16,12,'#c0e8f0');rect(20,6,16,1,'#888');rect(20,17,16,1,'#888');rect(20,6,1,12,'#888');rect(35,6,1,12,'#888');
+// mirror shine
+cx.globalAlpha=0.15;rect(22,8,4,6,'#fff');cx.globalAlpha=1;
+}
+
+function drawPunchBathroom(px0,py,sitting,straining,relieved){
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+rect(px0+2,py+2,4,3,FACE);
+if(straining){
+// straining face
+px(px0+3,py+3,EYE);px(px0+3,py+4,EYE);px(px0+6,py+3,EYE);px(px0+6,py+4,EYE);
+px(px0+5,py+5,'#c44');// open mouth strain
+px(px0+2,py+3,BLUSH);px(px0+7,py+3,BLUSH);
+}else if(relieved){
+// relieved happy face
+px(px0+3,py+3,EYE);px(px0+6,py+3,EYE);// squint
+px(px0+5,py+5,'#c88');// smile
+px(px0+2,py+4,BLUSH);px(px0+3,py+4,BLUSH);px(px0+6,py+4,BLUSH);px(px0+7,py+4,BLUSH);
+}else{
+px(px0+3,py+3,EYE);px(px0+3,py+4,EYE);px(px0+6,py+3,EYE);px(px0+6,py+4,EYE);
+px(px0+5,py+5,NOSE);
+}
+px(px0+5,py+4,NOSE);
+px(px0,py+2,FURDK);px(px0+8,py+2,FURDK);
+if(sitting){
+// arms on knees
+rect(px0+1,py+5,2,1,FUR);rect(px0+6,py+5,2,1,FUR);
+// legs bent
+rect(px0+2,py+6,2,2,FUR);rect(px0+5,py+6,2,2,FUR);
+}else{
+rect(px0+1,py+6,1,2,FUR);rect(px0+7,py+6,1,2,FUR);
+rect(px0+2,py+7,2,2,FUR);rect(px0+5,py+7,2,2,FUR);
+}
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+}
+
+function drawOranWaiting(ox,oy){
+rect(ox+1,oy,3,1,OR);rect(ox,oy+1,5,1,OR);rect(ox,oy+2,5,3,OR);
+rect(ox+1,oy+1,3,2,ORFACE);
+px(ox+1,oy+2,EYE);px(ox+3,oy+2,EYE);
+px(ox+2,oy+3,ORDK);
+rect(ox,oy+5,5,3,OR);rect(ox+1,oy+5,3,1,ORLT);
+rect(ox+1,oy+8,1,2,ORDK);rect(ox+3,oy+8,1,2,ORDK);
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+drawBathroom();
+const progress=f/TOTAL;
+const statusEl=document.getElementById('lcdStatus');
+
+if(progress<0.15){
+// Walk to bathroom
+const t=progress/0.15;
+const px0=Math.floor(-5+t*40);
+const bob=Math.floor(f/4)%2;
+drawOranWaiting(10,38);
+drawPunchBathroom(px0,34-bob,false,false,false);
+if(statusEl)statusEl.textContent=gs.name+' rushes to the bathroom! 🏃';
+}else if(progress<0.25){
+// Climbs on toilet
+drawOranWaiting(10,38);
+drawPunchBathroom(56,30,true,false,false);
+if(statusEl)statusEl.textContent=gs.name+' sits down...';
+}else if(progress<0.65){
+// Doing business — straining
+drawOranWaiting(10,38);
+const strain=Math.floor(f/5)%2===0;
+const bob=strain?1:0;
+drawPunchBathroom(56,30-bob,true,strain,false);
+// sweat drops
+if(strain){px(52,28,'#5ba8e6');px(68,29,'#5ba8e6')}
+const msgs=['*nnngghh...*','*pushing...*','Almost there...','*grunt*'];
+const mi=Math.floor(((progress-0.25)/0.4)*msgs.length);
+if(statusEl)statusEl.textContent=msgs[Math.min(mi,msgs.length-1)];
+}else if(progress<0.75){
+// Relief! Poop done
+drawOranWaiting(10,38);
+drawPunchBathroom(56,30,true,false,true);
+// poop emoji
+cx.font=P*4+'px sans-serif';cx.fillText('💩',58*P,42*P);
+if(statusEl)statusEl.textContent='Ahh... much better! 😌';
+}else if(progress<0.85){
+// Hops off toilet
+drawOranWaiting(10,38);
+const t=(progress-0.75)/0.1;
+const px0=Math.floor(56-t*20);
+const bob=Math.floor(f/4)%2;
+drawPunchBathroom(px0,34-bob,false,false,true);
+if(statusEl)statusEl.textContent=gs.name+' feels lighter! 💨';
+}else{
+// Walks out
+const t=(progress-0.85)/0.15;
+const px0=Math.floor(36-t*42);
+const bob=Math.floor(f/4)%2;
+drawOranWaiting(px0-12,38-bob);
+drawPunchBathroom(px0,34-bob,false,false,true);
+if(statusEl)statusEl.textContent='Time to clean up! 🧹';
+}
+}
+
+let poopRAF;
+function tick(){
+drawScene(frame);
+frame++;
+if(frame<=TOTAL){
+poopRAF=requestAnimationFrame(tick);
+}else{
+cv.style.opacity='0';
+setTimeout(()=>{cx.clearRect(0,0,W,H)},300);
+if(onDone)onDone();
+}
+}
+poopRAF=requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   SHOWER CUTSCENE — CLEANING UP TOGETHER
+   ============================================================ */
+function playShowerScene(onDone){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',NOSE='#4a3728',BLUSH='#FF9999';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+let frame=0;
+const TOTAL=140;
+const drops=[];
+const bubbles=[];
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawBathroom(){
+rect(0,0,80,60,'#d4e8d4');
+for(let i=0;i<80;i+=4){for(let j=0;j<42;j+=4){
+cx.fillStyle=(i+j)%8===0?'rgba(0,0,0,0.02)':'rgba(255,255,255,0.02)';
+cx.fillRect(i*P,j*P,4*P,4*P);
+}}
+rect(0,42,80,18,'#c8b8a0');
+for(let i=0;i<80;i+=6){cx.fillStyle='rgba(0,0,0,0.03)';cx.fillRect(i*P,42*P,3*P,18*P)}
+// shower area
+rect(24,2,32,42,'#b8d8e8');// shower back wall (wet tiles)
+for(let i=24;i<56;i+=4){for(let j=2;j<44;j+=4){
+cx.fillStyle='rgba(255,255,255,0.06)';cx.fillRect(i*P,j*P,4*P,4*P);
+}}
+// shower head
+rect(36,2,8,2,'#c0c0c0');rect(38,4,4,2,'#d0d0d0');rect(39,6,2,1,'#b0b0b0');
+// shower pipe
+rect(39,0,2,2,'#a0a0a0');
+// shower curtain rod
+rect(24,2,32,1,'#c0c0c0');
+// curtain (partially open)
+for(let i=0;i<6;i++){rect(24+i,3,1,40,'rgba(180,220,240,0.4)')}
+for(let i=0;i<6;i++){rect(50+i,3,1,40,'rgba(180,220,240,0.4)')}
+// drain
+rect(38,43,4,1,'#888');px(39,43,'#666');px(40,43,'#666');
+// bath mat
+rect(20,43,18,2,'#e0a0a0');
+// towel rack
+rect(4,10,2,20,'#8B6914');rect(3,10,4,1,'#a08030');
+rect(3,12,4,8,'#e0a0a0');rect(3,13,4,6,'#d89090');
+// second towel (small)
+rect(62,12,4,6,'#a0c0e0');rect(62,11,4,1,'#8B6914');
+}
+
+function spawnDrops(showering){
+if(!showering)return;
+if(frame%2===0){
+for(let i=0;i<3;i++){
+drops.push({x:34+Math.random()*12,y:7,vy:0.8+Math.random()*0.5,life:1});
+}
+}
+}
+function updateDrops(){
+for(let i=drops.length-1;i>=0;i--){
+const d=drops[i];
+d.y+=d.vy;d.life-=0.02;
+if(d.life<=0||d.y>44){drops.splice(i,1);continue}
+cx.globalAlpha=d.life*0.5;
+px(Math.floor(d.x),Math.floor(d.y),'#8cc8e8');
+cx.globalAlpha=1;
+}
+}
+
+function spawnBubbles(active){
+if(!active)return;
+if(frame%6===0){
+bubbles.push({x:32+Math.random()*16,y:35+Math.random()*6,vy:-0.15-Math.random()*0.15,vx:(Math.random()-0.5)*0.1,life:1,size:1+Math.random()});
+}
+}
+function updateBubbles(){
+for(let i=bubbles.length-1;i>=0;i--){
+const b=bubbles[i];
+b.y+=b.vy;b.x+=b.vx;b.life-=0.008;
+if(b.life<=0){bubbles.splice(i,1);continue}
+cx.globalAlpha=b.life*0.6;
+cx.strokeStyle='#fff';cx.lineWidth=1;
+cx.beginPath();cx.arc(b.x*P,b.y*P,b.size*P,0,Math.PI*2);cx.stroke();
+cx.globalAlpha=b.life*0.15;
+cx.fillStyle='#e0f0ff';cx.fill();
+cx.globalAlpha=1;
+}
+}
+
+function drawPunchShower(px0,py,scrubbing,happy){
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+rect(px0+2,py+2,4,3,FACE);
+if(happy){
+px(px0+3,py+3,EYE);px(px0+6,py+3,EYE);
+px(px0+5,py+5,'#c88');
+px(px0+2,py+4,BLUSH);px(px0+3,py+4,BLUSH);px(px0+6,py+4,BLUSH);px(px0+7,py+4,BLUSH);
+}else{
+px(px0+3,py+3,EYE);px(px0+3,py+4,EYE);px(px0+6,py+3,EYE);px(px0+6,py+4,EYE);
+px(px0+5,py+5,NOSE);
+}
+px(px0+5,py+4,NOSE);
+px(px0,py+2,FURDK);px(px0+8,py+2,FURDK);
+if(scrubbing){
+// arms scrubbing motion
+const s=Math.floor(frame/4)%2;
+rect(px0+1,py+4+s,2,1,FUR);rect(px0+6,py+5-s,2,1,FUR);
+}else{
+rect(px0+1,py+6,1,2,FUR);rect(px0+7,py+6,1,2,FUR);
+}
+rect(px0+2,py+7,2,2,FUR);rect(px0+5,py+7,2,2,FUR);
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+// soap suds on head when scrubbing
+if(scrubbing){
+cx.globalAlpha=0.7;
+px(px0+2,py,'#fff');px(px0+4,py-1,'#fff');px(px0+6,py,'#fff');
+px(px0+3,py-1,'#f0f0f0');px(px0+5,py-1,'#f0f0f0');
+cx.globalAlpha=1;
+}
+}
+
+function drawOranShower(ox,oy,scrubbing,happy){
+rect(ox+1,oy,3,1,OR);rect(ox,oy+1,5,1,OR);rect(ox,oy+2,5,3,OR);
+rect(ox+1,oy+1,3,2,ORFACE);
+if(happy){
+px(ox+1,oy+2,EYE);px(ox+3,oy+2,EYE);// squint happy
+}else{
+px(ox+1,oy+2,EYE);px(ox+3,oy+2,EYE);
+}
+px(ox+2,oy+3,ORDK);
+rect(ox,oy+5,5,3,OR);rect(ox+1,oy+5,3,1,ORLT);
+rect(ox+1,oy+8,1,2,ORDK);rect(ox+3,oy+8,1,2,ORDK);
+// suds
+if(scrubbing){
+cx.globalAlpha=0.7;
+px(ox+1,oy-1,'#fff');px(ox+3,oy-1,'#fff');px(ox+2,oy-1,'#f0f0f0');
+cx.globalAlpha=1;
+}
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+drawBathroom();
+const progress=f/TOTAL;
+const statusEl=document.getElementById('lcdStatus');
+
+if(progress<0.12){
+// Walk to shower
+const t=progress/0.12;
+const px0=Math.floor(-5+t*35);
+const bob=Math.floor(f/4)%2;
+drawPunchShower(px0,34-bob,false,false);
+drawOranShower(px0+10,36-bob,false,false);
+if(statusEl)statusEl.textContent=gs.name+' heads to the shower!';
+}else if(progress<0.2){
+// Step into shower
+drawPunchShower(34,34,false,false);
+drawOranShower(42,36,false,false);
+if(statusEl)statusEl.textContent='Time to get clean! 🚿';
+}else if(progress<0.3){
+// Water turns on
+spawnDrops(true);updateDrops();
+drawPunchShower(34,34,false,false);
+drawOranShower(42,36,false,false);
+if(statusEl)statusEl.textContent='*water turns on* 💦';
+}else if(progress<0.6){
+// Scrubbing together — main shower phase
+spawnDrops(true);updateDrops();
+spawnBubbles(true);updateBubbles();
+const scrub=true;
+drawPunchShower(34,34,scrub,false);
+drawOranShower(42,36,scrub,false);
+const msgs=['*scrub scrub scrub*','So much soap! 🧼','Getting squeaky clean!','*lather lather*'];
+const mi=Math.floor(((progress-0.3)/0.3)*msgs.length);
+if(statusEl)statusEl.textContent=msgs[Math.min(mi,msgs.length-1)];
+}else if(progress<0.75){
+// Rinsing — water still on, no more scrubbing
+spawnDrops(true);updateDrops();
+updateBubbles();// existing bubbles float away
+drawPunchShower(34,34,false,true);
+drawOranShower(42,36,false,true);
+if(statusEl)statusEl.textContent='Rinsing off... almost done! 💧';
+}else if(progress<0.85){
+// Water off, both happy and clean
+updateDrops();updateBubbles();
+drawPunchShower(34,34,false,true);
+drawOranShower(42,36,false,true);
+// sparkle effect
+if(Math.floor(f/3)%2){
+px(32,30,'#fff');px(48,32,'#fff');px(38,28,'#fff');px(44,34,'#fff');
+}
+if(statusEl)statusEl.textContent='All clean and sparkly! ✨';
+}else{
+// Walk out together
+const t=(progress-0.85)/0.15;
+const px0=Math.floor(34-t*42);
+const bob=Math.floor(f/4)%2;
+drawPunchShower(px0,34-bob,false,true);
+drawOranShower(px0+8,36-bob,false,true);
+// sparkles follow them
+if(Math.floor(f/4)%2){px(px0+4,30,'#fff');px(px0+12,32,'#fff')}
+if(statusEl)statusEl.textContent=gs.name+' smells amazing! 🌸';
+}
+}
+
+let showerRAF;
+function tick(){
+drawScene(frame);
+frame++;
+if(frame<=TOTAL){
+showerRAF=requestAnimationFrame(tick);
+}else{
+cv.style.opacity='0';
+drops.length=0;bubbles.length=0;
+setTimeout(()=>{cx.clearRect(0,0,W,H)},300);
+if(onDone)onDone();
+}
+}
+showerRAF=requestAnimationFrame(tick);
+}
+
+function updatePoopUI(){
+const poop=document.getElementById('poopSprite');
+const stink=document.getElementById('poopStink');
+const btn=document.getElementById('btnClean');
+if(gs.poopOnScreen){
+poop.classList.add('visible');
+stink.classList.add('visible');
+btn.classList.add('poop-alert');
+btn.classList.remove('disabled');
+// Add stink animation after a delay
+setTimeout(()=>{if(gs.poopOnScreen)poop.classList.add('stink')},3000);
+}else{
+poop.classList.remove('visible','stink');
+stink.classList.remove('visible');
+btn.classList.remove('poop-alert');
+btn.classList.add('disabled');
+}
+}
+
+/* ============================================================
+   ACTION BURST FX
+   ============================================================ */
+function triggerBurst(type){
+const cfg={
+feed:{emojis:['🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌','🍌'],cls:'burst-feed',dur:1600},
+cuddle:{emojis:['❤️','💕','💗','🧡','💛','💚','💜','🩷','❤️','💕','💗','🧡','💛','💚','💜'],cls:'burst-cuddle',dur:2000},
+sleep:{emojis:['⭐','🌙','✨','💫','🌟','⭐','🌙','✨','💫','🌟','⭐','🌙','✨','💫','🌟'],cls:'burst-sleep',dur:2400},
+games:{emojis:['🎉','🎊','✨','⭐','🌟','💥','🎮','🏆','🎯','🎪','🎉','🎊','✨','⭐','🌟'],cls:'burst-games',dur:1400}
+};
+const c=cfg[type];if(!c)return;
+const container=document.createElement('div');
+container.className='action-burst '+c.cls;
+document.body.appendChild(container);
+const w=window.innerWidth,h=window.innerHeight;
+c.emojis.forEach((em,i)=>{
+const p=document.createElement('span');
+p.className='burst-particle';
+p.textContent=em;
+p.style.animationDelay=(Math.random()*.4)+'s';
+if(type==='games'){
+const angle=Math.random()*Math.PI*2;
+const dist=120+Math.random()*280;
+p.style.setProperty('--bx',Math.cos(angle)*dist+'px');
+p.style.setProperty('--by',Math.sin(angle)*dist+'px');
+p.style.setProperty('--br',(Math.random()*720-360)+'deg');
+p.style.left='50%';p.style.top='50%';
+}else{
+p.style.left=(Math.random()*w)+'px';
+if(type==='cuddle')p.style.bottom='-20px';
+else p.style.top=(-20-Math.random()*60)+'px';
+}
+p.style.fontSize=(1.2+Math.random()*1.2)+'rem';
+container.appendChild(p);
+});
+setTimeout(()=>container.remove(),c.dur+500);
+}
+
+/* ============================================================
+   JUNGLE BACKGROUND + FOREGROUND + FIREFLIES + STARS
+   ============================================================ */
+(function(){
+const PX=6;
+const JC={dark:'#0a1a0a',mid:'#1e4a1e',bright:'#4a8c2a',yellow:'#7ab830',vine:'#1a3a10',vineDk:'#0f2a08'};
+let seed=42;
+function sr(){seed=(seed*16807)%2147483647;return(seed-1)/2147483646}
+function setupC(id){const c=document.getElementById(id);const d=window.devicePixelRatio||1;c.width=innerWidth*d;c.height=innerHeight*d;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';const x=c.getContext('2d');x.scale(d,d);return{c,x,w:innerWidth,h:innerHeight}}
+function pxR(x,cx,cy,w,h,col){x.fillStyle=col;for(let px=cx;px<cx+w;px+=PX)for(let py=cy;py<cy+h;py+=PX)x.fillRect(px,py,PX,PX)}
+function drawLeaf(x,ox,oy,sz,ang,cols){x.save();x.translate(ox,oy);x.rotate(ang);const steps=Math.floor(sz*.8/PX);for(let i=0;i<steps;i++){const t=i/steps;const w=sz*.5*Math.sin(t*Math.PI);const y=i*PX-sz*.08;if(w>PX)pxR(x,-w/2,y,w,PX,cols.main);if(w>PX*2)pxR(x,-w/3,y,w/2,PX,cols.hi);x.fillStyle=cols.vn||JC.vineDk;x.fillRect(-PX/2,y,PX,PX)}pxR(x,-PX/2,0,PX,sz*.65,cols.vn||JC.vine);x.restore()}
+function drawVine(x,sx,sy,len,sw){let cx=sx,cy=sy;for(let i=0;i<len;i++){x.fillStyle=i%3?JC.vine:JC.vineDk;x.fillRect(cx,cy,PX,PX);cy+=PX;cx+=Math.sin(i*.4+sw)*PX*.5;if(i%6===3&&i>1){x.fillStyle=JC.mid;x.fillRect(cx+PX,cy-PX,PX*2,PX);x.fillRect(cx+PX,cy,PX,PX)}}}
+function drawCluster(x,cx,cy,n,sp,cols){for(let i=0;i<n;i++){const a=(i/n)*Math.PI*1.6-Math.PI*.5+(sr()-.5)*.3;const d=sp*(.4+sr()*.6);drawLeaf(x,cx+Math.cos(a)*d,cy+Math.sin(a)*d,28+sr()*45,a+Math.PI*.5,cols)}}
+function drawGrass(x,bx,by,cnt,h){for(let i=0;i<cnt;i++){const gx=bx+i*(PX*2+sr()*PX);const gh=h*(.5+sr()*.5);const col=sr()>.5?JC.bright:JC.mid;for(let j=0;j<gh;j+=PX){x.fillStyle=j<gh*.3?JC.yellow:col;x.fillRect(gx+Math.sin(j*.15+i)*2,by-j,PX,PX)}}}
+
+function renderBg(){
+seed=42;const{x,w,h}=setupC('jungleBg');
+const g=x.createRadialGradient(w/2,h*.3,80,w/2,h*.5,Math.max(w,h));
+g.addColorStop(0,'#0a1a0a');g.addColorStop(.6,'#061006');g.addColorStop(1,'#030803');
+x.fillStyle=g;x.fillRect(0,0,w,h);
+// pixel grid
+x.fillStyle='rgba(255,255,255,.008)';for(let px=0;px<w;px+=PX*2)for(let py=0;py<h;py+=PX*2)x.fillRect(px,py,PX,PX);
+// stars
+for(let i=0;i<60;i++){const sx=sr()*w,sy=sr()*h,ss=PX*(sr()>.8?1.5:1);x.fillStyle=`rgba(255,255,${180+sr()*75},${.15+sr()*.25})`;x.fillRect(sx,sy,ss,ss)}
+// back leaves
+const bk={main:JC.dark,hi:'#0f2a0f',vn:'#060f06'};
+for(let i=0;i<Math.ceil(w/50);i++)drawLeaf(x,i*50+sr()*25,-8+sr()*18,45+sr()*30,Math.PI*.5+(sr()-.5)*.6,bk);
+for(let i=0;i<Math.ceil(h/65);i++){drawLeaf(x,-4+sr()*12,i*65+sr()*30,50+sr()*30,(sr()-.3)*.7,bk);drawLeaf(x,w-4+sr()*12,i*65+sr()*30,50+sr()*30,Math.PI+(sr()-.5)*.7,bk)}
+for(let i=0;i<Math.ceil(w/60);i++)drawLeaf(x,i*60+sr()*30,h-4+sr()*8,40+sr()*25,-Math.PI*.5+(sr()-.5)*.5,bk);
+// mid leaves
+const md={main:JC.mid,hi:JC.bright,vn:JC.vineDk};
+drawCluster(x,w*.08,-4,5,55,md);drawCluster(x,w*.35,-6,4,50,md);drawCluster(x,w*.65,-4,5,55,md);drawCluster(x,w*.92,-5,4,48,md);
+drawCluster(x,-6,h*.18,4,50,md);drawCluster(x,-8,h*.48,5,55,md);drawCluster(x,-4,h*.78,4,48,md);
+drawCluster(x,w+6,h*.14,4,50,md);drawCluster(x,w+8,h*.44,5,55,md);drawCluster(x,w+4,h*.74,4,48,md);
+// vines
+const vc=Math.max(5,Math.floor(w/100));
+for(let i=0;i<vc;i++){const vx=(w/(vc+1))*(i+1)+(sr()-.5)*35;drawVine(x,vx,0,10+Math.floor(sr()*20),sr()*6)}
+for(let i=0;i<4;i++){drawVine(x,sr()*8,h*.15+i*h*.22,5+Math.floor(sr()*7),sr()*4);drawVine(x,w-PX-sr()*8,h*.12+i*h*.24,5+Math.floor(sr()*7),sr()*4)}
+// bottom grass
+drawGrass(x,0,h,Math.ceil(w/(PX*2.5)),PX*6);
+}
+
+function renderFg(){
+seed=137;const{x,w,h}=setupC('jungleFg');
+const fr={main:JC.bright,hi:JC.yellow,vn:JC.vine};
+drawCluster(x,-8,-8,6,75,fr);drawCluster(x,w+8,-8,6,75,fr);
+drawCluster(x,-12,h+8,5,68,fr);drawCluster(x,w+12,h+8,5,68,fr);
+drawLeaf(x,18,8,95,.8,fr);drawLeaf(x,w-18,12,90,Math.PI-.7,fr);
+drawLeaf(x,12,h-28,85,-.6,fr);drawLeaf(x,w-12,h-22,88,Math.PI+.5,fr);
+for(let i=0;i<Math.ceil(h/140);i++){drawLeaf(x,-4+sr()*8,75+i*140+(sr()-.5)*35,60+sr()*28,.3+sr()*.5,fr);drawLeaf(x,w-4+sr()*8,95+i*140+(sr()-.5)*35,60+sr()*28,Math.PI-.3-sr()*.5,fr)}
+for(let i=0;i<3;i++){const vx=w*.14+i*w*.32+(sr()-.5)*45;drawVine(x,vx,0,4+Math.floor(sr()*5),sr()*5);drawLeaf(x,vx+PX,PX*(2+Math.floor(sr()*3)),30+sr()*18,.5+sr(),fr)}
+// bottom grass foreground
+drawGrass(x,PX,h,Math.ceil(w/(PX*3)),PX*8);
+}
+
+renderBg();renderFg();
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{renderBg();renderFg()},200)});
+
+/* FIREFLIES + STARS ANIMATION */
+const fc=document.getElementById('firefliesCanvas');
+const fctx=fc.getContext('2d');
+const fireflies=[];
+const ffColors=['#7ecf7e','#a8e6a8','#FFD700','#ff9944','#66ffcc','#ffcc66','#88ff88','#ccffaa'];
+function initFF(){
+const d=devicePixelRatio||1;fc.width=innerWidth*d;fc.height=innerHeight*d;fc.style.width=innerWidth+'px';fc.style.height=innerHeight+'px';fctx.scale(d,d);
+fireflies.length=0;
+for(let i=0;i<28;i++){fireflies.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.3,r:2+Math.random()*3,phase:Math.random()*Math.PI*2,speed:.01+Math.random()*.02,color:ffColors[i%ffColors.length]})}
+}
+initFF();
+window.addEventListener('resize',()=>{initFF()});
+function animFF(){
+fctx.clearRect(0,0,fc.width/devicePixelRatio,fc.height/devicePixelRatio);
+const t=Date.now()*.001;
+fireflies.forEach(f=>{
+f.phase+=f.speed;
+f.x+=f.vx+Math.sin(t+f.phase)*.3;
+f.y+=f.vy+Math.cos(t*.7+f.phase)*.2;
+if(f.x<-20)f.x=innerWidth+20;if(f.x>innerWidth+20)f.x=-20;
+if(f.y<-20)f.y=innerHeight+20;if(f.y>innerHeight+20)f.y=-20;
+const alpha=.3+Math.sin(f.phase*3)*.3;
+const glow=f.r*3;
+fctx.save();
+fctx.globalAlpha=alpha*.3;
+fctx.fillStyle=f.color;
+fctx.beginPath();fctx.arc(f.x,f.y,glow,0,Math.PI*2);fctx.fill();
+fctx.globalAlpha=alpha;
+fctx.fillRect(f.x-f.r/2,f.y-f.r/2,f.r,f.r);
+fctx.restore();
+});
+// twinkling stars
+for(let i=0;i<15;i++){
+const sx=(Math.sin(i*73.7+t*.2)*0.5+0.5)*innerWidth;
+const sy=(Math.cos(i*91.3+t*.15)*0.5+0.5)*innerHeight;
+const sa=.15+Math.sin(t*2+i*1.3)*.15;
+fctx.save();fctx.globalAlpha=sa;fctx.fillStyle='#ffffff';
+fctx.fillRect(sx,sy,PX,PX);
+fctx.fillRect(sx-PX,sy,PX*3,PX);
+fctx.fillRect(sx,sy-PX,PX,PX*3);
+fctx.restore();
+}
+requestAnimationFrame(animFF);
+}
+animFF();
+})();
+
+/* ============================================================
+   PIXEL ART SPRITES
+   ============================================================ */
+function drawPA(ctx,px,s){ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);px.forEach(([x,y,c])=>{ctx.fillStyle=c;ctx.fillRect(x*s,y*s,s,s)})}
+const C={fur:'#8B7355',furDk:'#6B5340',furLt:'#A08B6B',face:'#DEB887',eye:'#1a1a1a',eyeW:'#fff',nose:'#4a3728',mouth:'#4a3728',belly:'#C4A882',oran:'#FF8C00',oranDk:'#CC7000',oranLt:'#FFA940',oranFace:'#FFD4A0',oranEye:'#1a1a1a',tear:'#5ba8e6',blush:'#FF9999'};
+function getPunch(st){
+const p=[];
+[[5,1],[6,1],[7,1],[8,1],[9,1],[10,1]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[3,3],[4,3],[11,3],[12,3]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[3,4],[12,4]].forEach(([x,y])=>p.push([x,y,C.fur]));
+p.push([3,3,C.furLt],[12,3,C.furLt],[2,4,C.fur],[13,4,C.fur],[2,5,C.furLt],[13,5,C.furLt]);
+[[5,3],[6,3],[7,3],[8,3],[9,3],[10,3]].forEach(([x,y])=>p.push([x,y,C.face]));
+[[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4]].forEach(([x,y])=>p.push([x,y,C.face]));
+[[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5]].forEach(([x,y])=>p.push([x,y,C.face]));
+[[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6]].forEach(([x,y])=>p.push([x,y,C.face]));
+[[5,7],[6,7],[7,7],[8,7],[9,7],[10,7]].forEach(([x,y])=>p.push([x,y,C.face]));
+if(st==='sleeping'){p.push([5,5,C.eye],[6,5,C.eye],[9,5,C.eye],[10,5,C.eye])}
+else if(st==='sad'||st==='crying'){p.push([5,4,C.eyeW],[6,4,C.eyeW],[9,4,C.eyeW],[10,4,C.eyeW],[6,5,C.eye],[9,5,C.eye]);if(st==='crying'){p.push([6,6,C.tear],[6,7,C.tear],[9,6,C.tear],[9,7,C.tear])}}
+else{p.push([5,4,C.eyeW],[6,4,C.eyeW],[9,4,C.eyeW],[10,4,C.eyeW],[6,4,C.eye],[9,4,C.eye],[6,5,C.eye],[9,5,C.eye])}
+if(st==='happy'||st==='cuddling'){p.push([4,6,C.blush],[5,6,C.blush],[10,6,C.blush],[11,6,C.blush])}
+p.push([7,6,C.nose],[8,6,C.nose]);
+if(st==='happy'||st==='cuddling')p.push([7,7,C.mouth],[8,7,C.mouth]);
+else if(st==='eating')p.push([7,7,'#FFD700'],[8,7,'#FFD700']);
+else if(st==='sad'||st==='crying')p.push([7,7,C.mouth]);
+[[5,8],[6,8],[7,8],[8,8],[9,8],[10,8]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[4,9],[5,9],[6,9],[7,9],[8,9],[9,9],[10,9],[11,9]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[10,10],[11,10]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[5,11],[6,11],[7,11],[8,11],[9,11],[10,11]].forEach(([x,y])=>p.push([x,y,C.fur]));
+[[6,9],[7,9],[8,9],[9,9]].forEach(([x,y])=>p.push([x,y,C.belly]));
+p.push([7,10,C.belly],[8,10,C.belly]);
+if(st==='cuddling'){p.push([11,9,C.fur],[12,9,C.fur],[13,9,C.fur],[3,9,C.fur],[4,9,C.fur])}
+else if(st==='eating'){p.push([4,7,C.fur],[3,7,C.fur],[11,7,C.fur],[12,7,C.fur])}
+else{p.push([3,9,C.fur],[3,10,C.fur],[12,9,C.fur],[12,10,C.fur])}
+p.push([5,12,C.furDk],[6,12,C.furDk],[9,12,C.furDk],[10,12,C.furDk]);
+p.push([4,11,C.furDk],[3,11,C.furDk],[3,12,C.furDk]);
+return p;
+}
+function getOran(){
+const p=[];
+[[4,0],[5,0],[6,0],[7,0]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[3,1],[4,1],[5,1],[6,1],[7,1],[8,1]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[2,3],[3,3],[8,3],[9,3]].forEach(([x,y])=>p.push([x,y,C.oran]));
+p.push([2,4,C.oran],[9,4,C.oran],[2,5,C.oran],[3,5,C.oran],[8,5,C.oran],[9,5,C.oran]);
+[[3,6],[4,6],[5,6],[6,6],[7,6],[8,6]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[4,3],[5,3],[6,3],[7,3]].forEach(([x,y])=>p.push([x,y,C.oranFace]));
+[[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]].forEach(([x,y])=>p.push([x,y,C.oranFace]));
+[3,4,5,6,7].forEach(x=>p.push([x,5,C.oranFace]));
+p.push([4,4,C.oranEye],[7,4,C.oranEye],[5,5,C.oranDk],[6,5,C.oranDk]);
+[[4,7],[5,7],[6,7],[7,7]].forEach(([x,y])=>p.push([x,y,C.oranDk]));
+[[3,8],[4,8],[5,8],[6,8],[7,8],[8,8]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[3,9],[4,9],[5,9],[6,9],[7,9],[8,9]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[3,10],[4,10],[5,10],[6,10],[7,10],[8,10]].forEach(([x,y])=>p.push([x,y,C.oran]));
+[[4,11],[5,11],[6,11],[7,11]].forEach(([x,y])=>p.push([x,y,C.oran]));
+p.push([5,8,C.oranLt],[6,8,C.oranLt],[5,9,C.oranLt],[6,9,C.oranLt]);
+p.push([2,8,C.oran],[2,9,C.oran],[9,8,C.oran],[9,9,C.oran]);
+p.push([4,12,C.oranDk],[5,12,C.oranDk],[6,12,C.oranDk],[7,12,C.oranDk]);
+return p;
+}
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+const SK='raisePunchSave',DI=3000,DA=.5,AC=1500;
+let gs={name:'',hunger:80,happiness:80,energy:80,love:80,sleeping:false,sleepStart:0,weight:0.3,feedCount:0,cuddleCount:0,playCount:0,cleanCount:0,poopOnScreen:false,lastPoopTime:0,lastUpdate:Date.now(),created:Date.now(),activityLog:[]};
+let curAnim='idle',actLock=false,sleepTimerInt=null;
+
+function init(){
+drawPA(document.getElementById('previewCanvas').getContext('2d'),getPunch('happy'),4);
+const s=localStorage.getItem(SK);
+if(s){try{gs=JSON.parse(s);
+// Migrate old saves
+if(gs.weight===undefined)gs.weight=0.3;
+if(gs.feedCount===undefined)gs.feedCount=0;
+if(gs.cuddleCount===undefined)gs.cuddleCount=0;
+if(gs.playCount===undefined)gs.playCount=0;
+if(!gs.activityLog)gs.activityLog=[];
+if(gs.cleanCount===undefined)gs.cleanCount=0;
+if(gs.poopOnScreen===undefined)gs.poopOnScreen=false;
+if(gs.lastPoopTime===undefined)gs.lastPoopTime=0;
+const el=Date.now()-gs.lastUpdate;const tk=Math.floor(el/DI);
+if(gs.sleeping){
+// Was sleeping offline: energy recovers fast, others decay very slowly
+const od=Math.min(tk*DA*.1,15);
+gs.hunger=Math.max(0,gs.hunger-od);gs.happiness=Math.max(0,gs.happiness-od*.5);
+gs.energy=Math.min(100,gs.energy+Math.min(tk*DA*.8,50));gs.love=Math.max(0,gs.love-od*.3);
+}else{
+const od=Math.min(tk*DA*.3,40);
+gs.hunger=Math.max(0,gs.hunger-od);gs.happiness=Math.max(0,gs.happiness-od);
+gs.energy=Math.min(100,gs.energy+od*.5);gs.love=Math.max(0,gs.love-od*.5);
+}
+gs.lastUpdate=Date.now();document.getElementById('namingOverlay').classList.add('hidden');beginLoop();
+if(gs.sleeping)enterSleepUI();
+}catch(e){localStorage.removeItem(SK)}}
+}
+function startGame(){const n=document.getElementById('nameInput').value.trim()||'Punch';gs.name=n;gs.lastUpdate=Date.now();gs.created=Date.now();document.getElementById('namingOverlay').classList.add('hidden');save();beginLoop()}
+document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});
+function save(){gs.lastUpdate=Date.now();localStorage.setItem(SK,JSON.stringify(gs))}
+
+let decayT,renderT;
+function beginLoop(){updateDisp();renderSpr();renderLog();updateDayTime();updatePoopUI();if(!gs.sleeping)startIdlePlay();decayT=setInterval(()=>{
+if(gs.sleeping){
+// Sleeping: energy recovers, others decay very slowly
+gs.energy=Math.min(100,gs.energy+DA*0.6);
+gs.hunger=Math.max(0,gs.hunger-DA*0.15);
+gs.happiness=Math.max(0,gs.happiness-DA*0.1);
+gs.love=Math.max(0,gs.love-DA*0.08);
+gs.weight=Math.max(0.2,gs.weight-0.001);
+}else{
+gs.hunger=Math.max(0,gs.hunger-DA);
+gs.happiness=Math.max(0,gs.happiness-DA*.7);
+gs.energy=Math.max(0,gs.energy-DA*.4);
+gs.love=Math.max(0,gs.love-DA*.5);
+gs.weight=Math.max(0.2,gs.weight-0.003);
+// Poop on screen makes happiness decay faster
+if(gs.poopOnScreen)gs.happiness=Math.max(0,gs.happiness-DA*.5);
+checkPoop();
+}
+save();updateDisp();updateDayTime()},DI);renderT=setInterval(renderSpr,500)}
+
+function updateDisp(){
+const{name,hunger,happiness,energy,love}=gs;
+document.getElementById('lcdName').textContent=name;
+uBar('hungerBar',hunger);uBar('happinessBar',happiness);uBar('energyBar',energy);uBar('loveBar',love);
+updatePetInfo();
+// If sleeping, keep sleep state
+if(gs.sleeping){setAnim('sleeping');document.getElementById('lcdStatus').textContent=name+' is sleeping... 💤';return}
+const avg=(hunger+happiness+energy+love)/4;
+const anyZ=hunger===0||happiness===0||energy===0||love===0;
+const allH=hunger>70&&happiness>70&&energy>70&&love>70;
+if(curAnim!=='idle')return;
+let st='';
+if(anyZ){setAnim('crying');st=name+' is crying... 😢'}
+else if(avg<25){setAnim('sad');st=name+' is very sad...'}
+else if(allH){setAnim('happy');st=name+' is so happy! 🧡'}
+else if(energy<20){setAnim('idle');st=name+' is tired...'}
+else if(hunger<20){setAnim('idle');st=name+' is hungry...'}
+else{setAnim('idle');st=name+" is chillin'"}
+document.getElementById('lcdStatus').textContent=st;
+}
+
+function updatePetInfo(){
+// Age
+const ageMs=Date.now()-(gs.created||Date.now());
+const ageDays=Math.floor(ageMs/86400000);
+const ageHrs=Math.floor((ageMs%86400000)/3600000);
+const ageMins=Math.floor((ageMs%3600000)/60000);
+let ageStr='';
+if(ageDays>0)ageStr+=ageDays+'d ';
+if(ageHrs>0||ageDays>0)ageStr+=ageHrs+'h ';
+ageStr+=ageMins+'m';
+if(ageDays===0&&ageHrs===0)ageStr=ageMins+'m old';
+else ageStr+=' old';
+document.getElementById('piAge').textContent=ageStr;
+// Weight (grows with feeding, caps at 6kg)
+document.getElementById('piWeight').textContent=gs.weight.toFixed(1)+' kg';
+// Mood
+const avg=(gs.hunger+gs.happiness+gs.energy+gs.love)/4;
+const anyZ=gs.hunger===0||gs.happiness===0||gs.energy===0||gs.love===0;
+let mood,moodIcon;
+if(gs.sleeping){mood='Sleeping';moodIcon='😴'}
+else if(anyZ){mood='Crying';moodIcon='😭'}
+else if(avg<20){mood='Miserable';moodIcon='😢'}
+else if(avg<35){mood='Sad';moodIcon='😟'}
+else if(avg<50){mood='Okay';moodIcon='😐'}
+else if(avg<70){mood='Content';moodIcon='🙂'}
+else if(avg<85){mood='Happy';moodIcon='😊'}
+else{mood='Ecstatic!';moodIcon='🥰'}
+document.getElementById('piMood').textContent=mood;
+document.getElementById('piMoodIcon').textContent=moodIcon;
+// Lifetime stats
+document.getElementById('psFed').textContent=gs.feedCount||0;
+document.getElementById('psCuddled').textContent=gs.cuddleCount||0;
+document.getElementById('psPlayed').textContent=gs.playCount||0;
+document.getElementById('psCleaned').textContent=gs.cleanCount||0;
+}
+function uBar(id,v){const b=document.getElementById(id);b.style.width=v+'%';b.classList.toggle('low',v<20)}
+function setAnim(s){document.getElementById('spritesContainer').className='sprites-container punch-'+s;document.getElementById('tearL').style.display=s==='crying'?'block':'none';document.getElementById('tearR').style.display=s==='crying'?'block':'none';document.getElementById('zzzFloat').style.opacity=s==='sleeping'?'1':'0'}
+function renderSpr(){const cl=document.getElementById('spritesContainer').className;let s='idle';if(cl.includes('happy'))s='happy';else if(cl.includes('sad'))s='sad';else if(cl.includes('crying'))s='crying';else if(cl.includes('eating'))s='eating';else if(cl.includes('sleeping'))s='sleeping';else if(cl.includes('cuddling'))s='cuddling';drawPA(document.getElementById('punchCanvas').getContext('2d'),getPunch(s),4);drawPA(document.getElementById('oranCanvas').getContext('2d'),getOran(),4)}
+
+/* ============================================================
+   IDLE PLAY ANIMATION
+   ============================================================ */
+let idlePlayRAF=null,idlePlayActive=false;
+const IDLE_ACTIVITIES=['chase','peekaboo','ball','tickle','dance','roll'];
+
+function startIdlePlay(){
+if(idlePlayActive||gs.sleeping||actLock)return;
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+idlePlayActive=true;
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',NOSE='#4a3728',BLUSH='#FF9999';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+let frame=0;
+let activity=IDLE_ACTIVITIES[Math.floor(Math.random()*IDLE_ACTIVITIES.length)];
+let actTimer=0;
+const ACT_DUR=180;// frames per activity
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawGrass(){
+rect(0,0,80,60,'#a8d8a8');
+rect(0,44,80,16,'#88c088');
+// grass tufts
+for(let i=0;i<80;i+=6){
+px(i,44,'#78b078');px(i+1,43,'#78b078');px(i+3,44,'#68a068');
+}
+// flowers
+px(10,42,'#ff9999');px(11,42,'#ffaaaa');px(10,43,'#44aa44');
+px(65,41,'#ffff88');px(66,41,'#ffff99');px(65,42,'#44aa44');
+px(35,43,'#cc88ff');px(36,43,'#dd99ff');px(35,44,'#44aa44');
+// clouds
+cx.globalAlpha=0.3;
+rect(8,4,10,3,'#fff');rect(10,3,6,1,'#fff');rect(9,7,8,1,'#fff');
+rect(55,6,12,3,'#fff');rect(57,5,8,1,'#fff');rect(56,9,10,1,'#fff');
+cx.globalAlpha=1;
+// sun
+rect(70,2,5,5,'#FFE066');rect(71,1,3,1,'#FFE066');rect(71,7,3,1,'#FFE066');rect(69,3,1,3,'#FFE066');rect(75,3,1,3,'#FFE066');
+// tree
+rect(2,20,3,24,'#6B4226');rect(0,12,7,10,'#44aa44');rect(1,10,5,3,'#55bb55');
+}
+
+function drawPunchIdle(px0,py,happy,jumping,lookLeft){
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+rect(px0+2,py+2,4,3,FACE);
+// eyes
+if(happy){
+px(px0+3,py+3,EYE);px(px0+6,py+3,EYE);
+px(px0+2,py+4,BLUSH);px(px0+3,py+4,BLUSH);px(px0+6,py+4,BLUSH);px(px0+7,py+4,BLUSH);
+}else{
+const ex=lookLeft?-1:0;
+px(px0+3+ex,py+3,EYE);px(px0+3+ex,py+4,EYE);px(px0+6+ex,py+3,EYE);px(px0+6+ex,py+4,EYE);
+}
+px(px0+5,py+4,NOSE);
+if(happy)px(px0+5,py+5,'#c88');else px(px0+5,py+5,NOSE);
+px(px0,py+2,FURDK);px(px0+8,py+2,FURDK);
+// arms
+if(jumping){
+rect(px0+1,py,1,2,FUR);rect(px0+7,py,1,2,FUR);
+}else{
+rect(px0+1,py+6,1,2,FUR);rect(px0+7,py+6,1,2,FUR);
+}
+rect(px0+2,py+7,2,2,FUR);rect(px0+5,py+7,2,2,FUR);
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+}
+
+function drawOranIdle(ox,oy,happy,lookLeft){
+rect(ox+1,oy,3,1,OR);rect(ox,oy+1,5,1,OR);rect(ox,oy+2,5,3,OR);
+rect(ox+1,oy+1,3,2,ORFACE);
+const ex=lookLeft?-1:0;
+if(happy){
+px(ox+1,oy+2,EYE);px(ox+3,oy+2,EYE);
+}else{
+px(ox+1+ex,oy+2,EYE);px(ox+3+ex,oy+2,EYE);
+}
+px(ox+2,oy+3,ORDK);
+rect(ox,oy+5,5,3,OR);rect(ox+1,oy+5,3,1,ORLT);
+rect(ox+1,oy+8,1,2,ORDK);rect(ox+3,oy+8,1,2,ORDK);
+}
+
+function drawBall(bx,by){
+rect(bx,by,3,3,'#e44');rect(bx+1,by-1,1,1,'#e44');rect(bx-1,by+1,1,1,'#e44');
+px(bx+1,by,'#f88');// highlight
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+drawGrass();
+const t=(actTimer%ACT_DUR)/ACT_DUR;
+
+if(activity==='chase'){
+// Punch chases Oran-Mama in a circle
+const angle=t*Math.PI*2;
+const cx0=40+Math.cos(angle)*18;
+const cy0=32+Math.sin(angle)*6;
+const cx1=40+Math.cos(angle+Math.PI)*18;
+const cy1=32+Math.sin(angle+Math.PI)*6;
+const bob=Math.floor(f/3)%2;
+const lookL=Math.cos(angle)<0;
+drawPunchIdle(Math.floor(cx0),Math.floor(cy0)-bob,true,false,lookL);
+drawOranIdle(Math.floor(cx1),Math.floor(cy1)-bob,true,!lookL);
+document.getElementById('lcdStatus').textContent=gs.name+' is chasing Oran-Mama! 🏃';
+}else if(activity==='peekaboo'){
+// Peek-a-boo behind tree
+const phase=Math.floor(t*4)%4;
+drawPunchIdle(phase<2?4:12,28,phase>=2,false,false);
+drawOranIdle(phase<2?60:52,30,phase>=2,true);
+if(phase<2)document.getElementById('lcdStatus').textContent=gs.name+' is hiding... 🙈';
+else document.getElementById('lcdStatus').textContent='PEEK-A-BOO! 🙊';
+}else if(activity==='ball'){
+// Tossing a ball back and forth
+const cycle=t*2%1;
+const ballX=20+cycle*40;
+const ballY=28-Math.sin(cycle*Math.PI)*12;
+drawPunchIdle(14,34,true,false,false);
+drawOranIdle(62,36,true,true);
+drawBall(Math.floor(ballX),Math.floor(ballY));
+document.getElementById('lcdStatus').textContent=gs.name+' plays catch! ⚾';
+}else if(activity==='tickle'){
+// Punch tickles Oran-Mama
+const wiggle=Math.sin(f*0.3)*2;
+drawOranIdle(42+Math.floor(wiggle),32,true,false);
+const armWave=Math.floor(f/3)%2;
+drawPunchIdle(30,34,true,armWave,false);
+// laugh particles
+if(Math.floor(f/6)%2){
+cx.globalAlpha=0.6;cx.font=P*2+'px sans-serif';
+cx.fillText('ha',50*P,28*P);cx.fillText('ha',46*P,26*P);
+cx.globalAlpha=1;
+}
+document.getElementById('lcdStatus').textContent=gs.name+' tickles Oran-Mama! 🤭';
+}else if(activity==='dance'){
+// Dancing together
+const bounce=Math.abs(Math.sin(f*0.15))*3;
+const sway=Math.sin(f*0.1)*3;
+drawPunchIdle(30+Math.floor(sway),34-Math.floor(bounce),true,Math.floor(f/4)%2,false);
+drawOranIdle(44-Math.floor(sway),36-Math.floor(bounce),true,false);
+// music notes
+cx.globalAlpha=0.5;cx.font=P*2.5+'px sans-serif';
+const ny=20+Math.sin(f*0.08)*4;
+cx.fillText('♪',22*P,ny*P);cx.fillText('♫',55*P,(ny+2)*P);cx.fillText('♪',38*P,(ny-2)*P);
+cx.globalAlpha=1;
+document.getElementById('lcdStatus').textContent=gs.name+' dances with Oran-Mama! 💃';
+}else if(activity==='roll'){
+// Punch rolls around on the grass
+const rollX=15+t*50;
+const rollAngle=f*0.2;
+cx.save();
+cx.translate(Math.floor(rollX)*P+4*P,36*P+4*P);
+cx.rotate(rollAngle);
+rect(-4,-4,8,8,FUR);rect(-3,-3,6,6,FACE);
+px(-1,-1,EYE);px(1,-1,EYE);px(0,1,NOSE);
+cx.restore();
+drawOranIdle(60,36,true,true);
+// grass particles
+if(Math.floor(f/3)%2){px(Math.floor(rollX)-2,42,'#78b078');px(Math.floor(rollX)+8,41,'#78b078')}
+document.getElementById('lcdStatus').textContent=gs.name+' rolls in the grass! 🌿';
+}
+
+actTimer++;
+if(actTimer>=ACT_DUR){
+actTimer=0;
+activity=IDLE_ACTIVITIES[Math.floor(Math.random()*IDLE_ACTIVITIES.length)];
+}
+}
+
+function tick(){
+if(!idlePlayActive)return;
+drawScene(frame);
+frame++;
+idlePlayRAF=requestAnimationFrame(tick);
+}
+idlePlayRAF=requestAnimationFrame(tick);
+}
+
+function stopIdlePlay(){
+idlePlayActive=false;
+if(idlePlayRAF){cancelAnimationFrame(idlePlayRAF);idlePlayRAF=null}
+const cv=document.getElementById('feedScene');
+cv.style.opacity='0';
+setTimeout(()=>{if(!idlePlayActive)cv.getContext('2d').clearRect(0,0,320,240)},300);
+}
+
+/* ============================================================
+   FEEDING CUTSCENE
+   ============================================================ */
+function playFeedScene(onDone){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const BG='#8ad88a',BGDK='#6aba6a',FLOOR='#5a9a5a';
+const TBL='#8B5E3C',TBLDK='#6B4226',TBLTOP='#A0714F';
+const MNKY='#8B6914',MNKYD='#6B4F0E',MNKYF='#FFD1A4',MNKYE='#1a1a1a';
+const BAN='#FFE135',BANDK='#D4B800',BANPEEL='#F5D623',BANWHT='#FFFDE6';
+let frame=0;
+const TOTAL=140;// ~4.7s at 30fps
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawBg(){
+rect(0,0,80,60,BG);
+// floor
+rect(0,42,80,18,FLOOR);
+// floor tiles
+for(let i=0;i<80;i+=8){cx.fillStyle='rgba(0,0,0,0.04)';cx.fillRect(i*P,42*P,4*P,18*P)}
+// wall shelf
+rect(58,8,16,2,'#6B4226');rect(58,7,16,1,'#A0714F');
+// plate on shelf
+rect(62,5,3,2,'#ddd');rect(63,4,1,1,'#eee');
+// window
+rect(4,6,14,12,'#b0e8b0');rect(4,6,14,1,'#6B4226');rect(4,17,14,1,'#6B4226');rect(4,6,1,12,'#6B4226');rect(17,6,1,12,'#6B4226');rect(10,6,1,12,'#6B4226');
+// curtain
+for(let i=0;i<3;i++){rect(5+i,6,1,4,'#e8c8a0');rect(14+i,6,1,4,'#e8c8a0')}
+}
+
+function drawTable(){
+// table top
+rect(28,34,24,2,TBLTOP);rect(28,33,24,1,TBLTOP);
+// table front
+rect(28,36,24,3,TBL);
+// legs
+rect(29,39,2,5,TBLDK);rect(49,39,2,5,TBLDK);
+// shadow under table
+rect(29,44,22,1,'rgba(0,0,0,0.08)');
+}
+
+function drawChair(x){
+// seat
+rect(x,37,8,2,TBLDK);rect(x,36,8,1,TBL);
+// back
+rect(x,28,2,8,TBLDK);rect(x+6,28,2,8,TBLDK);rect(x,28,8,1,TBL);
+// legs
+rect(x,39,1,5,TBLDK);rect(x+7,39,1,5,TBLDK);
+}
+
+function drawPunch(px0,py,phase,bitePhase){
+// body
+rect(px0+1,py+2,6,5,MNKY);rect(px0+2,py+1,4,1,MNKY);
+// face
+rect(px0+2,py+2,4,3,MNKYF);
+// eyes
+px(px0+3,py+3,MNKYE);px(px0+5,py+3,MNKYE);
+// mouth - changes with eating
+if(bitePhase>0){
+// open mouth eating
+px(px0+4,py+5,'#c44');
+if(bitePhase%2===0)px(px0+4,py+4,'#c44');
+}else{
+px(px0+4,py+5,MNKYD);
+}
+// ears
+px(px0,py+2,MNKYD);px(px0+7,py+2,MNKYD);
+// arms
+if(phase>=3){
+// holding banana - arms forward
+rect(px0+1,py+5,2,1,MNKY);rect(px0+5,py+5,2,1,MNKY);
+}else{
+// arms down
+rect(px0+1,py+6,1,2,MNKY);rect(px0+6,py+6,1,2,MNKY);
+}
+// legs
+rect(px0+2,py+7,2,2,MNKY);rect(px0+4,py+7,2,2,MNKY);
+// tail
+px(px0,py+6,MNKYD);px(px0-1,py+7,MNKYD);
+}
+
+function drawBanana(bx,by,peelState,bites){
+if(peelState===0){
+// whole banana
+rect(bx,by,5,2,BAN);rect(bx+1,by-1,3,1,BAN);px(bx+4,by-1,BANDK);px(bx,by+1,BANDK);
+}else if(peelState===1){
+// half peeled
+rect(bx+1,by,3,2,BANWHT);rect(bx+1,by-1,3,1,BAN);
+// peels hanging
+px(bx,by+1,BANPEEL);px(bx+4,by+1,BANPEEL);px(bx,by+2,BANPEEL);px(bx+4,by+2,BANPEEL);
+}else{
+// fully peeled, showing bites
+let len=3-bites;
+if(len<0)len=0;
+rect(bx+1,by,Math.max(1,len),2,BANWHT);
+// peels on table
+px(bx-1,by+1,BANPEEL);px(bx+4,by+1,BANPEEL);
+}
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+drawBg();
+drawTable();
+drawChair(22);
+drawChair(52);
+
+const progress=f/TOTAL;
+let punchX,punchY,phase,peelState=0,bites=0,biteAnim=0;
+const statusEl=document.getElementById('lcdStatus');
+
+if(progress<0.12){
+// Phase 1: Walking to table from left
+phase=0;
+const t=progress/0.12;
+punchX=Math.floor(2+t*22);
+punchY=35;
+// walking bob
+if(Math.floor(f/4)%2)punchY+=1;
+if(statusEl)statusEl.textContent=gs.name+' walks to the table...';
+}else if(progress<0.2){
+// Phase 2: Sitting down
+phase=1;
+punchX=24;punchY=29;
+if(statusEl)statusEl.textContent=gs.name+' sits down!';
+}else if(progress<0.3){
+// Phase 3: Banana appears on table
+phase=2;
+punchX=24;punchY=29;
+peelState=0;
+drawBanana(36,32,0,0);
+if(statusEl)statusEl.textContent='A banana appears! 🍌';
+}else if(progress<0.42){
+// Phase 4: Picking up and peeling
+phase=3;
+punchX=24;punchY=29;
+const pt=(progress-0.3)/0.12;
+peelState=pt<0.5?0:1;
+drawBanana(33,30,peelState,0);
+if(statusEl)statusEl.textContent=gs.name+' peels the banana...';
+}else if(progress<0.82){
+// Phase 5: Eating bite by bite (4 bites)
+phase=3;
+punchX=24;punchY=29;
+const et=(progress-0.42)/0.4;
+bites=Math.floor(et*4);
+biteAnim=Math.floor(f/3)%3;
+peelState=2;
+drawBanana(33,30,2,bites);
+// chewing motion
+if(biteAnim===1)punchY=28;
+const msgs=['*nom nom nom*','*munch munch*','So yummy! 😋','*chomp chomp*'];
+if(statusEl)statusEl.textContent=msgs[Math.min(bites,3)];
+}else if(progress<0.9){
+// Phase 6: Happy reaction, pats belly
+phase=4;
+punchX=24;punchY=29;
+// happy bounce
+if(Math.floor(f/3)%2)punchY=28;
+if(statusEl)statusEl.textContent=gs.name+' is full and happy! 🥰';
+// draw crumbs
+px(35,33,BANPEEL);px(37,34,BANPEEL);
+// peels on table
+px(32,33,BANPEEL);px(38,33,BANPEEL);
+}else{
+// Phase 7: Walking away
+phase=0;
+const t=(progress-0.9)/0.1;
+punchX=Math.floor(24+t*30);
+punchY=35;
+if(Math.floor(f/4)%2)punchY+=1;
+if(statusEl)statusEl.textContent=gs.name+' waddles away happily!';
+}
+
+drawPunch(punchX,punchY,phase,biteAnim);
+}
+
+let feedRAF;
+function tick(){
+drawScene(frame);
+frame++;
+if(frame<=TOTAL){
+feedRAF=requestAnimationFrame(tick);
+}else{
+cv.style.opacity='0';
+setTimeout(()=>{cx.clearRect(0,0,W,H)},300);
+if(onDone)onDone();
+}
+}
+feedRAF=requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   CUDDLE CUTSCENE
+   ============================================================ */
+function playCuddleScene(onDone){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const BG='#8ad88a',FLOOR='#6aba6a',WALL='#7ac87a';
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',BLUSH='#FF9999',NOSE='#4a3728';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+let frame=0;
+const TOTAL=160;// ~5.3s at 30fps
+const hearts=[];
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawBg(){
+rect(0,0,80,60,BG);
+rect(0,44,80,16,FLOOR);
+// cozy room details
+// rug
+rect(20,44,40,2,'#c49a6c');rect(22,46,36,1,'#b08858');
+for(let i=0;i<36;i+=4){px(22+i,44,'#b08858')}
+// window with warm light
+rect(30,4,20,14,'#ffe8b0');rect(30,4,20,1,'#6B4226');rect(30,17,20,1,'#6B4226');rect(30,4,1,14,'#6B4226');rect(49,4,1,14,'#6B4226');rect(39,4,1,14,'#6B4226');
+// stars outside
+px(33,7,'#fff');px(44,6,'#fff');px(37,9,'#fff');px(46,10,'#fff');
+// curtains
+for(let i=0;i<4;i++){rect(31+i,5,1,5,'#e8c8a0');rect(45+i,5,1,5,'#e8c8a0')}
+// small lamp on left
+rect(8,30,3,1,'#ffe066');rect(9,31,1,10,'#8B6914');rect(8,41,3,2,'#6B4226');
+// warm glow from lamp
+cx.fillStyle='rgba(255,224,100,0.04)';
+cx.beginPath();cx.arc(9.5*P,30*P,40,0,Math.PI*2);cx.fill();
+// pillow on floor
+rect(55,40,10,3,'#e8a0a0');rect(56,39,8,1,'#d88888');
+}
+
+function drawPunchCuddle(px0,py,hugging,nuzzle){
+const nx=nuzzle?1:0;
+// body
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+// face
+rect(px0+2,py+2,4,3,FACE);
+// eyes - happy squint when hugging
+if(hugging){
+px(px0+3+nx,py+3,EYE);px(px0+5+nx,py+3,EYE);
+// blush
+px(px0+2+nx,py+4,BLUSH);px(px0+3+nx,py+4,BLUSH);px(px0+5+nx,py+4,BLUSH);px(px0+6+nx,py+4,BLUSH);
+}else{
+rect(px0+3,py+3,1,2,EYE);rect(px0+5,py+3,1,2,EYE);
+}
+// nose & mouth
+px(px0+4+nx,py+4,NOSE);
+if(hugging)px(px0+4+nx,py+5,'#c88');// smile
+else px(px0+4,py+5,NOSE);
+// ears
+px(px0,py+2,FURDK);px(px0+7,py+2,FURDK);
+// arms - reaching out or hugging
+if(hugging){
+rect(px0+6,py+4,2,1,FUR);rect(px0+7,py+5,2,1,FUR);// arms wrapping right
+}else{
+rect(px0+6,py+5,2,1,FUR);rect(px0+7,py+6,1,1,FUR);
+}
+// belly
+rect(px0+3,py+6,3,1,'#C4A882');
+// legs
+rect(px0+2,py+7,2,2,FUR);rect(px0+4,py+7,2,2,FUR);
+// tail
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+}
+
+function drawOranCuddle(ox,oy,hugging,nuzzle){
+const nx=nuzzle?-1:0;
+// head
+rect(ox+2,oy,4,1,OR);rect(ox+1,oy+1,6,1,OR);
+rect(ox,oy+2,8,1,OR);
+// face
+rect(ox+2,oy+2,4,2,ORFACE);rect(ox+1,oy+3,6,1,ORFACE);rect(ox+2,oy+4,4,1,ORFACE);
+// eyes
+px(ox+2+nx,oy+3,EYE);px(ox+5+nx,oy+3,EYE);
+// nose
+px(ox+3+nx,oy+4,ORDK);px(ox+4+nx,oy+4,ORDK);
+// body
+rect(ox+1,oy+5,6,4,OR);rect(ox+2,oy+5,4,1,ORLT);
+// arms - reaching or hugging
+if(hugging){
+rect(ox-1,oy+5,2,1,OR);rect(ox-2,oy+6,2,1,OR);// arms wrapping left
+}else{
+rect(ox-1,oy+6,2,1,OR);rect(ox,oy+7,1,1,OR);
+}
+// legs
+rect(ox+2,oy+9,2,2,ORDK);rect(ox+4,oy+9,2,2,ORDK);
+}
+
+function drawHeart(hx,hy,size,color){
+const s=size;
+cx.fillStyle=color;
+// pixel heart shape
+cx.fillRect((hx+1)*P,hy*P,s*P,s*P);
+cx.fillRect((hx+3)*P,hy*P,s*P,s*P);
+cx.fillRect(hx*P,(hy+1)*P,s*5*P,s*P);
+cx.fillRect(hx*P,(hy+2)*P,s*5*P,s*P);
+cx.fillRect((hx+1)*P,(hy+3)*P,s*3*P,s*P);
+cx.fillRect((hx+2)*P,(hy+4)*P,s*P,s*P);
+}
+
+function spawnHeart(f){
+if(f%8===0){
+hearts.push({
+x:15+Math.random()*50,
+y:42+Math.random()*5,
+vy:-0.3-Math.random()*0.4,
+vx:(Math.random()-0.5)*0.2,
+size:1,
+color:['#FF6B6B','#FF4081','#E91E63','#FF69B4','#FF1744','#F06292','#EC407A'][Math.floor(Math.random()*7)],
+life:1
+});
+}
+}
+
+function updateHearts(){
+for(let i=hearts.length-1;i>=0;i--){
+const h=hearts[i];
+h.y+=h.vy;
+h.x+=h.vx;
+h.life-=0.008;
+if(h.life<=0||h.y<-5){hearts.splice(i,1);continue}
+cx.globalAlpha=h.life;
+drawHeart(Math.floor(h.x),Math.floor(h.y),h.size,h.color);
+cx.globalAlpha=1;
+}
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+drawBg();
+
+const progress=f/TOTAL;
+let punchX,punchY,oranX,oranY,hugging=false,nuzzle=false;
+const statusEl=document.getElementById('lcdStatus');
+
+if(progress<0.12){
+// Phase 1: Punch walks in from left, Oran-Mama from right
+const t=progress/0.12;
+punchX=Math.floor(-5+t*25);punchY=34;
+oranX=Math.floor(75-t*30);oranY=33;
+if(Math.floor(f/4)%2){punchY+=1;oranY-=1}
+if(statusEl)statusEl.textContent=gs.name+' sees Oran-Mama!';
+}else if(progress<0.22){
+// Phase 2: They spot each other, pause
+const t=(progress-0.12)/0.1;
+punchX=20;punchY=34;
+oranX=45;oranY=33;
+// little excited bounce
+if(Math.floor(f/3)%2){punchY=33;oranY=32}
+if(statusEl)statusEl.textContent=gs.name+': "Oran-Mama!" 🥺';
+}else if(progress<0.32){
+// Phase 3: Run toward each other
+const t=(progress-0.22)/0.1;
+punchX=Math.floor(20+t*12);punchY=34;
+oranX=Math.floor(45-t*10);oranY=33;
+if(Math.floor(f/3)%2){punchY+=1;oranY-=1}
+if(statusEl)statusEl.textContent='They run to each other!';
+}else if(progress<0.82){
+// Phase 4: THE HUG — long embrace with hearts
+hugging=true;
+punchX=32;punchY=34;
+oranX=35;oranY=33;
+// gentle sway together
+const sway=Math.sin(f*0.12)*0.8;
+punchX+=Math.floor(sway);oranX+=Math.floor(sway);
+// nuzzle every few frames
+nuzzle=Math.floor(f/12)%3===0;
+// gentle vertical bob
+if(Math.floor(f/8)%2){punchY=33;oranY=32}
+spawnHeart(f);
+const msgs=[
+gs.name+' hugs Oran-Mama tight! 🧡',
+'So warm and safe... 💕',
+gs.name+' nuzzles into her fur...',
+'Oran-Mama holds him close 🥰',
+gs.name+' never wants to let go...'
+];
+const mi=Math.floor(((progress-0.32)/0.5)*msgs.length);
+if(statusEl)statusEl.textContent=msgs[Math.min(mi,msgs.length-1)];
+}else if(progress<0.9){
+// Phase 5: Slowly separate, both happy
+hugging=false;
+const t=(progress-0.82)/0.08;
+punchX=Math.floor(32-t*8);punchY=34;
+oranX=Math.floor(35+t*8);oranY=33;
+// happy bounce
+if(Math.floor(f/3)%2){punchY=33;oranY=32}
+if(statusEl)statusEl.textContent=gs.name+' feels so loved! 💗';
+}else{
+// Phase 6: Wave goodbye, walk apart
+const t=(progress-0.9)/0.1;
+punchX=Math.floor(24-t*26);punchY=34;
+oranX=Math.floor(43+t*30);oranY=33;
+if(Math.floor(f/4)%2){punchY+=1;oranY-=1}
+if(statusEl)statusEl.textContent='Until next cuddle time! 🧸';
+}
+
+updateHearts();
+drawOranCuddle(oranX,oranY,hugging,nuzzle);
+drawPunchCuddle(punchX,punchY,hugging,nuzzle);
+
+// Big glowing heart during hug
+if(hugging&&progress>0.4&&progress<0.75){
+const pulse=0.6+Math.sin(f*0.15)*0.4;
+cx.globalAlpha=pulse*0.3;
+drawHeart(33,18,2,'#FF4081');
+cx.globalAlpha=1;
+}
+}
+
+let cudRAF;
+function tick(){
+drawScene(frame);
+frame++;
+if(frame<=TOTAL){
+cudRAF=requestAnimationFrame(tick);
+}else{
+cv.style.opacity='0';
+hearts.length=0;
+setTimeout(()=>{cx.clearRect(0,0,W,H)},300);
+if(onDone)onDone();
+}
+}
+cudRAF=requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function doAction(type){
+if(actLock||gs.sleeping)return;stopIdlePlay();actLock=true;triggerBurst(type);
+const ov=document.getElementById('actionOverlay'),em=document.getElementById('actionEmoji'),{name}=gs;
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.add('disabled'));
+switch(type){
+case'feed':
+gs.hunger=Math.min(100,gs.hunger+25);gs.happiness=Math.min(100,gs.happiness+5);gs.feedCount=(gs.feedCount||0)+1;gs.weight=Math.min(6,gs.weight+0.05);
+addLog('feed',name+' ate a banana! 🍌 Weight: '+gs.weight.toFixed(1)+'kg');
+save();updateDisp();
+playFeedScene(()=>{
+curAnim='idle';actLock=false;
+if(!gs.sleeping)document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('disabled'));
+updateDisp();renderSpr();startIdlePlay();
+});
+setTimeout(()=>{if(!gs.sleeping&&!gs.poopOnScreen&&Math.random()<0.6)spawnPoop()},8000+Math.random()*12000);
+return;
+case'cuddle':
+gs.love=Math.min(100,gs.love+30);gs.happiness=Math.min(100,gs.happiness+15);gs.cuddleCount=(gs.cuddleCount||0)+1;
+addLog('cuddle',name+' cuddled Oran-Mama! Love +30, Happy +15');
+save();updateDisp();
+playCuddleScene(()=>{
+curAnim='idle';actLock=false;
+if(!gs.sleeping)document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('disabled'));
+updateDisp();renderSpr();startIdlePlay();
+});
+return;
+}
+ov.classList.add('active');save();renderSpr();
+setTimeout(()=>{ov.classList.remove('active');curAnim='idle';actLock=false;
+if(!gs.sleeping)document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('disabled'));
+updateDisp();renderSpr();startIdlePlay()},AC);
+}
+
+/* ============================================================
+   SLEEP CUTSCENE
+   ============================================================ */
+function playSleepScene(onDone){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',NOSE='#4a3728';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+let frame=0;
+const TOTAL=150;
+const zzz=[];
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawRoom(darkness){
+// sky/wall darkens over time
+const r=Math.floor(138-darkness*90),g=Math.floor(216-darkness*130),b=Math.floor(138-darkness*90);
+rect(0,0,80,60,'rgb('+r+','+g+','+b+')');
+// floor
+const fr=Math.floor(90-darkness*50),fg=Math.floor(154-darkness*80),fb=Math.floor(90-darkness*50);
+rect(0,46,80,14,'rgb('+fr+','+fg+','+fb+')');
+// window - shows night sky as it darkens
+const skyR=Math.floor(176-darkness*150),skyG=Math.floor(232-darkness*200),skyB=Math.floor(176-darkness*100);
+rect(50,4,18,14,'rgb('+skyR+','+skyG+','+skyB+')');
+rect(50,4,18,1,'#5a3a1a');rect(50,17,18,1,'#5a3a1a');rect(50,4,1,14,'#5a3a1a');rect(67,4,1,14,'#5a3a1a');rect(58,4,1,14,'#5a3a1a');
+// moon appears as it gets dark
+if(darkness>0.3){
+const ma=Math.min(1,(darkness-0.3)/0.3);
+cx.globalAlpha=ma;
+rect(53,6,3,3,'#FFFDE6');rect(54,5,2,1,'#FFFDE6');rect(54,9,2,1,'#FFFDE6');
+px(55,6,'rgb('+skyR+','+skyG+','+skyB+')');// crescent cutout
+cx.globalAlpha=1;
+}
+// stars appear
+if(darkness>0.5){
+const sa=Math.min(1,(darkness-0.5)/0.3);
+cx.globalAlpha=sa*(0.5+Math.sin(frame*0.1)*0.5);
+px(62,7,'#fff');px(65,9,'#fff');px(54,12,'#fff');px(60,6,'#fff');px(63,13,'#fff');
+cx.globalAlpha=1;
+}
+// curtains
+for(let i=0;i<3;i++){rect(51+i,5,1,5,'#c49a6c');rect(64+i,5,1,5,'#c49a6c')}
+// lamp on nightstand
+rect(6,32,4,1,'#ffe066');rect(7,33,2,7,'#8B6914');rect(5,40,6,3,'#5a3a1a');
+// lamp glow dims
+if(darkness<0.8){
+const glow=0.06*(1-darkness);
+cx.fillStyle='rgba(255,224,100,'+glow+')';
+cx.beginPath();cx.arc(8*P,32*P,50,0,Math.PI*2);cx.fill();
+}
+}
+
+function drawBed(){
+// bed frame
+rect(18,38,36,3,'#5a3a1a');rect(18,41,36,6,'#6B4226');
+// headboard
+rect(50,28,4,13,'#5a3a1a');rect(51,26,2,2,'#6B4226');
+// footboard
+rect(18,34,3,7,'#5a3a1a');
+// mattress
+rect(20,36,30,3,'#e8e0d0');
+// pillow
+rect(42,34,8,3,'#f0ece4');rect(43,33,6,1,'#e8e0d0');
+}
+
+function drawBlanket(tuck){
+// blanket covers based on tuck progress (0-1)
+if(tuck<=0)return;
+const w=Math.floor(28*tuck);
+rect(22,37,w,4,'#7ab0d8');rect(22,37,w,1,'#8ac0e8');
+// pattern on blanket
+for(let i=0;i<w;i+=5){
+if(22+i+2<22+w)px(22+i+2,38,'#6a9ac0');
+}
+}
+
+function drawPunchSleep(px0,py,sleeping,yawn){
+// body
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+// face
+rect(px0+2,py+2,4,3,FACE);
+// eyes
+if(sleeping){
+// closed eyes - horizontal lines
+px(px0+3,py+3,EYE);px(px0+4,py+3,EYE);px(px0+6,py+3,EYE);px(px0+7,py+3,EYE);
+}else{
+px(px0+3,py+3,EYE);px(px0+3,py+4,EYE);px(px0+6,py+3,EYE);px(px0+6,py+4,EYE);
+}
+// nose
+px(px0+5,py+4,NOSE);
+// mouth - yawn or smile
+if(yawn){
+rect(px0+4,py+5,2,2,'#4a3728');px(px0+5,py+5,'#c44');// open yawn
+}else if(sleeping){
+px(px0+5,py+5,NOSE);// peaceful
+}else{
+px(px0+5,py+5,NOSE);
+}
+// ears
+px(px0,py+2,FURDK);px(px0+8,py+2,FURDK);
+// arms
+rect(px0+1,py+6,1,2,FUR);rect(px0+7,py+6,1,2,FUR);
+// legs
+rect(px0+2,py+7,2,2,FUR);rect(px0+5,py+7,2,2,FUR);
+// tail
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+}
+
+function drawOranSleep(ox,oy){
+// simplified lying oran-mama
+rect(ox+1,oy,4,1,OR);rect(ox,oy+1,6,1,OR);
+rect(ox,oy+2,6,2,OR);
+// face
+rect(ox+1,oy+1,4,2,ORFACE);
+px(ox+2,oy+2,EYE);px(ox+4,oy+2,EYE);// closed eyes
+px(ox+3,oy+3,ORDK);
+// body
+rect(ox,oy+4,6,3,OR);rect(ox+1,oy+4,4,1,ORLT);
+}
+
+function spawnZzz(f){
+if(f%14===0){
+zzz.push({x:38+Math.random()*4,y:30,life:1,size:0.6+Math.random()*0.4});
+}
+}
+function updateZzz(){
+for(let i=zzz.length-1;i>=0;i--){
+const z=zzz[i];
+z.y-=0.25;z.x+=Math.sin(z.y*0.3)*0.1;z.life-=0.012;
+if(z.life<=0){zzz.splice(i,1);continue}
+cx.globalAlpha=z.life*0.8;
+cx.fillStyle='#4a6a4a';
+cx.font=(Math.floor(z.size*3)+1)*P+'px monospace';
+cx.fillText('z',z.x*P,z.y*P);
+cx.globalAlpha=1;
+}
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+const progress=f/TOTAL;
+const statusEl=document.getElementById('lcdStatus');
+let darkness=0;
+
+if(progress<0.12){
+// Phase 1: Punch walks toward bed with Oran-Mama
+darkness=0;
+drawRoom(darkness);drawBed();drawBlanket(0);
+const t=progress/0.12;
+const px0=Math.floor(-5+t*30);
+const py=37;
+const bob=Math.floor(f/4)%2;
+drawPunchSleep(px0,py-bob,false,false);
+drawOranSleep(px0+9,py+2-bob);
+if(statusEl)statusEl.textContent=gs.name+' heads to bed...';
+}else if(progress<0.22){
+// Phase 2: Arrives at bed, puts Oran-Mama on pillow
+darkness=0.05;
+drawRoom(darkness);drawBed();drawBlanket(0);
+drawOranSleep(43,33);
+drawPunchSleep(30,34,false,false);
+if(statusEl)statusEl.textContent=gs.name+' puts Oran-Mama on the pillow';
+}else if(progress<0.32){
+// Phase 3: Yawns
+darkness=0.15;
+drawRoom(darkness);drawBed();drawBlanket(0);
+drawOranSleep(43,33);
+const yawn=Math.floor(f/6)%2===0;
+drawPunchSleep(30,34,false,yawn);
+if(statusEl)statusEl.textContent='*yaaawwwn* 🥱';
+}else if(progress<0.42){
+// Phase 4: Climbs into bed
+darkness=0.3;
+drawRoom(darkness);drawBed();
+const t=(progress-0.32)/0.1;
+drawBlanket(t*0.3);
+drawOranSleep(43,33);
+drawPunchSleep(32,34+Math.floor(t*2),false,false);
+if(statusEl)statusEl.textContent=gs.name+' climbs into bed...';
+}else if(progress<0.55){
+// Phase 5: Says goodnight, tucks in
+darkness=0.5;
+drawRoom(darkness);drawBed();
+drawBlanket(0.7);
+drawOranSleep(43,33);
+drawPunchSleep(33,36,false,false);
+if(statusEl)statusEl.textContent='"Good night, Oran-Mama..." 🌙';
+}else if(progress<0.68){
+// Phase 6: Pulls blanket up, snuggles close
+darkness=0.7;
+drawRoom(darkness);drawBed();
+const t=(progress-0.55)/0.13;
+drawBlanket(0.7+t*0.3);
+drawOranSleep(43,33);
+drawPunchSleep(34,36,false,false);
+if(statusEl)statusEl.textContent=gs.name+' snuggles close to Oran-Mama...';
+}else if(progress<0.85){
+// Phase 7: Eyes close, room goes dark, Zzz starts
+darkness=0.85;
+drawRoom(darkness);drawBed();
+drawBlanket(1);
+drawOranSleep(43,33);
+drawPunchSleep(34,36,true,false);
+spawnZzz(f);
+updateZzz();
+if(statusEl)statusEl.textContent='"...love you, mama" 💤';
+}else{
+// Phase 8: Fully dark, peaceful sleep
+darkness=Math.min(0.95,0.85+(progress-0.85)/0.15*0.1);
+drawRoom(darkness);drawBed();
+drawBlanket(1);
+drawOranSleep(43,33);
+drawPunchSleep(34,36,true,false);
+spawnZzz(f);
+updateZzz();
+// gentle breathing
+if(statusEl)statusEl.textContent='Sweet dreams, '+gs.name+'... 🌟';
+}
+}
+
+let slpRAF;
+function tick(){
+drawScene(frame);
+frame++;
+if(frame<=TOTAL){
+slpRAF=requestAnimationFrame(tick);
+}else{
+cv.style.opacity='0';
+zzz.length=0;
+setTimeout(()=>{cx.clearRect(0,0,W,H)},300);
+if(onDone)onDone();
+}
+}
+slpRAF=requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   SLEEP MODE
+   ============================================================ */
+let sleepCutscenePlaying=false;
+function toggleSleep(){
+if(sleepCutscenePlaying)return;
+if(gs.sleeping){wakeUp()}else{putToSleep()}
+}
+
+function putToSleep(){
+stopIdlePlay();
+sleepCutscenePlaying=true;
+triggerBurst('sleep');
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.add('disabled'));
+addLog('sleep',gs.name+' went to sleep... 💤');
+playSleepScene(()=>{
+gs.sleeping=true;
+gs.sleepStart=Date.now();
+sleepCutscenePlaying=false;
+save();
+enterSleepUI();
+updateDisp();
+renderSpr();
+});
+}
+
+function wakeUp(){
+// Calculate how long Punch slept
+const sleptMs=Date.now()-gs.sleepStart;
+const sleptSec=Math.floor(sleptMs/1000);
+const h=Math.floor(sleptSec/3600);const m=Math.floor((sleptSec%3600)/60);const s=sleptSec%60;
+let dur='';
+if(h>0)dur+=h+'h ';
+if(m>0)dur+=m+'m ';
+dur+=s+'s';
+// Stop sleep anim, disable buttons during cutscene
+stopSleepAnim();
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.add('disabled'));
+gs.sleeping=false;
+gs.sleepStart=0;
+save();
+playWakeScene(dur,()=>{
+exitSleepUI();
+curAnim='idle';
+updateDisp();
+renderSpr();
+addLog('wake',gs.name+' woke up! Slept for '+dur);
+startIdlePlay();
+});
+}
+
+/* ============================================================
+   WAKE-UP CUTSCENE
+   ============================================================ */
+function playWakeScene(dur,onDone){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',NOSE='#4a3728',BLUSH='#FF9999';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+let frame=0;
+const TOTAL=140;
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawRoom(brightness){
+// wall lightens from dark to bright morning
+const r=Math.floor(38+brightness*100),g=Math.floor(56+brightness*160),b=Math.floor(38+brightness*100);
+rect(0,0,80,60,'rgb('+r+','+g+','+b+')');
+const fr=Math.floor(30+brightness*60),fg=Math.floor(44+brightness*110),fb=Math.floor(30+brightness*60);
+rect(0,46,80,14,'rgb('+fr+','+fg+','+fb+')');
+// window — night to sunrise to day
+const skyR=Math.floor(16+brightness*160),skyG=Math.floor(22+brightness*200),skyB=Math.floor(46+brightness*130);
+rect(50,4,18,14,'rgb('+skyR+','+skyG+','+skyB+')');
+rect(50,4,18,1,'#5a3a1a');rect(50,17,18,1,'#5a3a1a');rect(50,4,1,14,'#5a3a1a');rect(67,4,1,14,'#5a3a1a');rect(58,4,1,14,'#5a3a1a');
+// sun rises as brightness increases
+if(brightness>0.3){
+const sa=Math.min(1,(brightness-0.3)/0.4);
+cx.globalAlpha=sa;
+const sunY=Math.floor(14-brightness*6);
+rect(61,sunY,4,4,'#FFE066');rect(62,sunY-1,2,1,'#FFE066');rect(62,sunY+4,2,1,'#FFE066');
+rect(60,sunY+1,1,2,'#FFE066');rect(65,sunY+1,1,2,'#FFE066');
+cx.globalAlpha=1;
+}
+// stars fade out
+if(brightness<0.5){
+cx.globalAlpha=(0.5-brightness)/0.5*0.5;
+px(62,7,'#fff');px(65,9,'#fff');px(54,12,'#fff');px(60,6,'#fff');
+cx.globalAlpha=1;
+}
+// moon fades
+if(brightness<0.6){
+cx.globalAlpha=(0.6-brightness)/0.6;
+rect(53,6,3,3,'#FFFDE6');rect(54,5,2,1,'#FFFDE6');
+cx.globalAlpha=1;
+}
+// curtains
+for(let i=0;i<3;i++){rect(51+i,5,1,5,'#c49a6c');rect(64+i,5,1,5,'#c49a6c')}
+// sunbeam rays when bright
+if(brightness>0.6){
+const ra=Math.min(0.08,(brightness-0.6)*0.2);
+cx.fillStyle='rgba(255,240,180,'+ra+')';
+cx.beginPath();cx.moveTo(58*P,10*P);cx.lineTo(30*P,46*P);cx.lineTo(50*P,46*P);cx.fill();
+cx.beginPath();cx.moveTo(62*P,10*P);cx.lineTo(45*P,46*P);cx.lineTo(65*P,46*P);cx.fill();
+}
+// nightstand
+rect(7,33,2,7,'#5a3a1a');rect(5,40,6,3,'#3a2a1a');
+}
+
+function drawBed(){
+rect(18,38,36,3,'#5a3a1a');rect(18,41,36,6,'#6B4226');
+rect(50,28,4,13,'#5a3a1a');rect(51,26,2,2,'#6B4226');
+rect(18,34,3,7,'#5a3a1a');
+rect(20,36,30,3,'#e8e0d0');
+rect(42,34,8,3,'#f0ece4');rect(43,33,6,1,'#e8e0d0');
+}
+
+function drawBlanket(tuck){
+const w=Math.floor(28*tuck);
+if(w<=0)return;
+rect(22,37,w,4,'#7ab0d8');rect(22,37,w,1,'#8ac0e8');
+for(let i=0;i<w;i+=5){if(22+i+2<22+w)px(22+i+2,38,'#6a9ac0')}
+}
+
+function drawPunchWake(px0,py,eyeState,yawn,stretch,happy){
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+rect(px0+2,py+2,4,3,FACE);
+// eyes
+if(eyeState===0){// closed
+px(px0+3,py+3,EYE);px(px0+4,py+3,EYE);px(px0+6,py+3,EYE);px(px0+7,py+3,EYE);
+}else if(eyeState===1){// half open (squinting)
+px(px0+3,py+3,EYE);px(px0+6,py+3,EYE);
+}else{// fully open
+px(px0+3,py+3,EYE);px(px0+3,py+4,EYE);px(px0+6,py+3,EYE);px(px0+6,py+4,EYE);
+}
+px(px0+5,py+4,NOSE);
+if(yawn){
+rect(px0+4,py+5,2,2,'#4a3728');px(px0+5,py+5,'#c44');
+}else if(happy){
+px(px0+5,py+5,'#c88');
+px(px0+2,py+4,BLUSH);px(px0+3,py+4,BLUSH);px(px0+6,py+4,BLUSH);px(px0+7,py+4,BLUSH);
+}else{
+px(px0+5,py+5,NOSE);
+}
+px(px0,py+2,FURDK);px(px0+8,py+2,FURDK);
+// arms — stretch up or normal
+if(stretch){
+rect(px0+1,py,1,2,FUR);rect(px0+7,py,1,2,FUR);// arms up!
+px(px0,py-1,FUR);px(px0+8,py-1,FUR);// hands up
+}else{
+rect(px0+1,py+6,1,2,FUR);rect(px0+7,py+6,1,2,FUR);
+}
+rect(px0+2,py+7,2,2,FUR);rect(px0+5,py+7,2,2,FUR);
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+}
+
+function drawOranWake(ox,oy,lying){
+if(lying){
+rect(ox+1,oy,4,1,OR);rect(ox,oy+1,6,1,OR);rect(ox,oy+2,6,2,OR);
+rect(ox+1,oy+1,4,2,ORFACE);
+px(ox+2,oy+2,EYE);px(ox+4,oy+2,EYE);
+px(ox+3,oy+3,ORDK);
+rect(ox,oy+4,6,3,OR);rect(ox+1,oy+4,4,1,ORLT);
+}else{
+// upright oran-mama (carried)
+rect(ox+1,oy,3,1,OR);rect(ox,oy+1,5,1,OR);rect(ox,oy+2,5,3,OR);
+rect(ox+1,oy+1,3,2,ORFACE);
+px(ox+1,oy+2,EYE);px(ox+3,oy+2,EYE);
+px(ox+2,oy+3,ORDK);
+rect(ox,oy+5,5,3,OR);rect(ox+1,oy+5,3,1,ORLT);
+}
+}
+
+function drawScene(f){
+cx.clearRect(0,0,W,H);
+const progress=f/TOTAL;
+const statusEl=document.getElementById('lcdStatus');
+
+if(progress<0.12){
+// Phase 1: Still in bed, room dark, eyes start to open
+const brightness=progress/0.12*0.1;
+drawRoom(brightness);drawBed();drawBlanket(1);
+drawOranWake(43,33,true);
+const blink=Math.floor(f/6)%3;
+drawPunchWake(34,36,blink===0?0:1,false,false,false);
+if(statusEl)statusEl.textContent='...';
+}else if(progress<0.22){
+// Phase 2: Eyes open, blinks
+const brightness=0.1+(progress-0.12)/0.1*0.15;
+drawRoom(brightness);drawBed();drawBlanket(1);
+drawOranWake(43,33,true);
+const blink=Math.floor(f/8)%4;
+drawPunchWake(34,36,blink===0?1:2,false,false,false);
+if(statusEl)statusEl.textContent=gs.name+' opens his eyes...';
+}else if(progress<0.35){
+// Phase 3: Big yawn
+const brightness=0.25+(progress-0.22)/0.13*0.15;
+drawRoom(brightness);drawBed();drawBlanket(1);
+drawOranWake(43,33,true);
+const yawn=Math.floor(f/5)%2===0;
+drawPunchWake(34,36,2,yawn,false,false);
+if(statusEl)statusEl.textContent='*yaaawwwn* Good morning! 🥱';
+}else if(progress<0.48){
+// Phase 4: Stretch! Arms up
+const brightness=0.4+(progress-0.35)/0.13*0.15;
+drawRoom(brightness);drawBed();drawBlanket(0.8);
+drawOranWake(43,33,true);
+const bob=Math.floor(f/4)%2;
+drawPunchWake(34,35-bob,2,false,true,false);
+if(statusEl)statusEl.textContent=gs.name+' stretches! 💪';
+}else if(progress<0.58){
+// Phase 5: Throws blanket off, sits up
+const brightness=0.55+(progress-0.48)/0.1*0.1;
+const t=(progress-0.48)/0.1;
+drawRoom(brightness);drawBed();drawBlanket(Math.max(0,0.8-t*0.8));
+drawOranWake(43,33,true);
+drawPunchWake(33,34,2,false,false,false);
+if(statusEl)statusEl.textContent=gs.name+' sits up in bed...';
+}else if(progress<0.7){
+// Phase 6: Picks up Oran-Mama, happy face
+const brightness=0.65+(progress-0.58)/0.12*0.15;
+drawRoom(brightness);drawBed();drawBlanket(0);
+drawPunchWake(32,34,2,false,false,true);
+drawOranWake(40,34,true);
+if(statusEl)statusEl.textContent='"Morning, Oran-Mama!" ☀️';
+}else if(progress<0.85){
+// Phase 7: Hops out of bed carrying Oran-Mama
+const brightness=0.8+(progress-0.7)/0.15*0.15;
+drawRoom(brightness);drawBed();drawBlanket(0);
+const t=(progress-0.7)/0.15;
+const px0=Math.floor(32-t*20);
+const py=34+Math.floor(t*4);
+const bob=Math.floor(f/4)%2;
+drawPunchWake(px0,py-bob,2,false,false,true);
+drawOranWake(px0+9,py+1-bob,false);
+if(statusEl)statusEl.textContent=gs.name+' hops out of bed!';
+}else{
+// Phase 8: Walking away into the day, room fully bright
+const brightness=0.95;
+drawRoom(brightness);drawBed();drawBlanket(0);
+const t=(progress-0.85)/0.15;
+const px0=Math.floor(12-t*18);
+const bob=Math.floor(f/4)%2;
+drawPunchWake(px0,38-bob,2,false,false,true);
+drawOranWake(px0+9,39-bob,false);
+if(statusEl)statusEl.textContent='Ready for a new day! Slept '+dur+' ☀️';
+}
+}
+
+let wakeRAF;
+function tick(){
+drawScene(frame);
+frame++;
+if(frame<=TOTAL){
+wakeRAF=requestAnimationFrame(tick);
+}else{
+cv.style.opacity='0';
+setTimeout(()=>{cx.clearRect(0,0,W,H)},300);
+if(onDone)onDone();
+}
+}
+wakeRAF=requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   PERSISTENT SLEEP ANIMATION + DREAMS
+   ============================================================ */
+let sleepAnimRAF=null;
+const DREAMS=[
+{icon:'🍌',text:'mountains of bananas...'},
+{icon:'🌴',text:'swinging in palm trees...'},
+{icon:'🧸',text:'hugging Oran-Mama forever...'},
+{icon:'🏔️',text:'hot springs in the snow...'},
+{icon:'🦋',text:'chasing butterflies...'},
+{icon:'🌈',text:'sliding down a rainbow...'},
+{icon:'🍦',text:'a giant ice cream cone...'},
+{icon:'🚀',text:'flying to the moon...'},
+{icon:'👑',text:'being king of the troop...'},
+{icon:'🎪',text:'a monkey circus...'},
+{icon:'🏖️',text:'a tropical beach...'},
+{icon:'🎂',text:'a huge birthday cake...'},
+{icon:'🐟',text:'catching fish in a stream...'},
+{icon:'☁️',text:'bouncing on clouds...'},
+{icon:'🎵',text:'a jungle concert...'},
+{icon:'🌺',text:'a field of flowers...'},
+{icon:'🍉',text:'a watermelon feast...'},
+{icon:'⛄',text:'building a snowman...'},
+];
+
+function startSleepAnim(){
+const cv=document.getElementById('feedScene');
+const cx=cv.getContext('2d');
+const W=320,H=240,P=4;
+cv.style.opacity='1';
+const FUR='#8B7355',FURDK='#6B5340',FACE='#DEB887',EYE='#1a1a1a',NOSE='#4a3728';
+const OR='#FF8C00',ORDK='#CC7000',ORLT='#FFA940',ORFACE='#FFD4A0';
+const zzzArr=[];
+let frame=0;
+let curDream=DREAMS[Math.floor(Math.random()*DREAMS.length)];
+let dreamTimer=0;
+let dreamAlpha=0;
+let dreamFading=false;
+
+function px(x,y,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,P,P)}
+function rect(x,y,w,h,c){cx.fillStyle=c;cx.fillRect(x*P,y*P,w*P,h*P)}
+
+function drawRoom(){
+rect(0,0,80,60,'rgb(38,56,38)');
+rect(0,46,80,14,'rgb(30,44,30)');
+// window with night sky
+rect(50,4,18,14,'rgb(16,22,46)');
+rect(50,4,18,1,'#3a2a1a');rect(50,17,18,1,'#3a2a1a');rect(50,4,1,14,'#3a2a1a');rect(67,4,1,14,'#3a2a1a');rect(58,4,1,14,'#3a2a1a');
+// moon
+rect(53,6,3,3,'#FFFDE6');rect(54,5,2,1,'#FFFDE6');rect(54,9,2,1,'#FFFDE6');
+px(55,6,'rgb(16,22,46)');
+// twinkling stars
+const t=frame*0.03;
+const starAlpha=0.4+Math.sin(t*2)*0.4;
+cx.globalAlpha=starAlpha;
+px(62,7,'#fff');px(65,9,'#fff');px(54,12,'#fff');px(60,6,'#fff');px(63,13,'#fff');
+cx.globalAlpha=0.2+Math.sin(t*3+1)*0.2;
+px(56,8,'#aaccff');px(64,11,'#aaccff');px(61,14,'#aaccff');
+cx.globalAlpha=1;
+// curtains
+for(let i=0;i<3;i++){rect(51+i,5,1,5,'#6a5a3a');rect(64+i,5,1,5,'#6a5a3a')}
+// nightstand with lamp (off)
+rect(7,33,2,7,'#4a3a1a');rect(5,40,6,3,'#3a2a1a');
+// tiny nightlight glow
+cx.fillStyle='rgba(100,140,200,0.03)';
+cx.beginPath();cx.arc(8*P,38*P,30,0,Math.PI*2);cx.fill();
+}
+
+function drawBed(){
+rect(18,38,36,3,'#3a2a1a');rect(18,41,36,6,'#4a3220');
+rect(50,28,4,13,'#3a2a1a');rect(51,26,2,2,'#4a3220');
+rect(18,34,3,7,'#3a2a1a');
+rect(20,36,30,3,'#c8c0b0');
+rect(42,34,8,3,'#d8d0c4');rect(43,33,6,1,'#c8c0b0');
+}
+
+function drawBlanket(){
+rect(22,37,28,4,'#5a8ab0');rect(22,37,28,1,'#6a9ac0');
+for(let i=0;i<28;i+=5){px(22+i+2,38,'#4a7a98')}
+// breathing motion
+const breathe=Math.sin(frame*0.04)*0.5;
+if(breathe>0.2)rect(22,36,28,1,'#6a9ac0');
+}
+
+function drawPunchSleeping(px0,py){
+rect(px0+1,py+2,6,5,FUR);rect(px0+2,py+1,4,1,FUR);
+rect(px0+2,py+2,4,3,FACE);
+// closed eyes
+px(px0+3,py+3,EYE);px(px0+4,py+3,EYE);px(px0+6,py+3,EYE);px(px0+7,py+3,EYE);
+px(px0+5,py+4,NOSE);px(px0+5,py+5,NOSE);
+px(px0,py+2,FURDK);px(px0+8,py+2,FURDK);
+rect(px0+1,py+6,1,2,FUR);rect(px0+7,py+6,1,2,FUR);
+rect(px0+2,py+7,2,2,FUR);rect(px0+5,py+7,2,2,FUR);
+px(px0,py+6,FURDK);px(px0-1,py+7,FURDK);
+// peaceful smile
+const smileFrame=Math.floor(frame/40)%2;
+if(smileFrame)px(px0+5,py+5,'#c88');
+}
+
+function drawOranSleeping(ox,oy){
+rect(ox+1,oy,4,1,OR);rect(ox,oy+1,6,1,OR);
+rect(ox,oy+2,6,2,OR);
+rect(ox+1,oy+1,4,2,ORFACE);
+px(ox+2,oy+2,EYE);px(ox+4,oy+2,EYE);
+px(ox+3,oy+3,ORDK);
+rect(ox,oy+4,6,3,OR);rect(ox+1,oy+4,4,1,ORLT);
+}
+
+function drawDreamBubble(dream,alpha){
+if(alpha<=0)return;
+cx.globalAlpha=alpha;
+// bubble background
+cx.fillStyle='rgba(220,230,255,0.85)';
+const bx=4*P,by=2*P,bw=28*P,bh=16*P;
+cx.beginPath();
+cx.moveTo(bx+8,by);cx.lineTo(bx+bw-8,by);
+cx.quadraticCurveTo(bx+bw,by,bx+bw,by+8);
+cx.lineTo(bx+bw,by+bh-8);
+cx.quadraticCurveTo(bx+bw,by+bh,bx+bw-8,by+bh);
+cx.lineTo(bx+8,by+bh);
+cx.quadraticCurveTo(bx,by+bh,bx,by+bh-8);
+cx.lineTo(bx,by+8);
+cx.quadraticCurveTo(bx,by,bx+8,by);
+cx.fill();
+// bubble tail (dots leading to Punch's head)
+cx.fillStyle='rgba(220,230,255,0.7)';
+cx.beginPath();cx.arc(bx+bw*0.7,by+bh+4,5,0,Math.PI*2);cx.fill();
+cx.beginPath();cx.arc(bx+bw*0.8,by+bh+10,3,0,Math.PI*2);cx.fill();
+// dream icon
+cx.font='bold '+P*5+'px sans-serif';
+cx.fillStyle='rgba(0,0,0,0.8)';
+cx.textAlign='center';
+cx.fillText(dream.icon,bx+bw/2,by+bh*0.45+2);
+// dream text
+cx.font='bold '+P*1.8+'px Nunito,sans-serif';
+cx.fillStyle='rgba(60,60,80,0.8)';
+cx.fillText(dream.text,bx+bw/2,by+bh*0.82);
+cx.textAlign='left';
+cx.globalAlpha=1;
+}
+
+function spawnZzz(){
+if(frame%18===0){
+zzzArr.push({x:38+Math.random()*4,y:30,life:1,size:0.5+Math.random()*0.5});
+}
+}
+function updateZzz(){
+for(let i=zzzArr.length-1;i>=0;i--){
+const z=zzzArr[i];
+z.y-=0.2;z.x+=Math.sin(z.y*0.3)*0.08;z.life-=0.01;
+if(z.life<=0){zzzArr.splice(i,1);continue}
+cx.globalAlpha=z.life*0.7;
+cx.fillStyle='#8ab8c8';
+cx.font=(Math.floor(z.size*3)+1)*P+'px monospace';
+cx.fillText('z',z.x*P,z.y*P);
+cx.globalAlpha=1;
+}
+}
+
+function drawSleepTimer(){
+if(!gs.sleeping||!gs.sleepStart)return;
+const elapsed=Math.floor((Date.now()-gs.sleepStart)/1000);
+const h=Math.floor(elapsed/3600);const m=Math.floor((elapsed%3600)/60);const s=elapsed%60;
+let txt='💤 ';
+if(h>0)txt+=h+'h ';
+txt+=m+'m '+s+'s';
+cx.globalAlpha=0.6;
+cx.fillStyle='#b0d0b0';
+cx.font='bold '+P*2.2+'px Nunito,sans-serif';
+cx.textAlign='center';
+cx.fillText(txt,W/2,H-P*2);
+cx.textAlign='left';
+cx.globalAlpha=1;
+}
+
+function tick(){
+cx.clearRect(0,0,W,H);
+drawRoom();
+drawBed();
+drawBlanket();
+drawOranSleeping(43,33);
+drawPunchSleeping(34,36);
+spawnZzz();
+updateZzz();
+
+// Dream cycle: fade in, hold, fade out, switch
+dreamTimer++;
+if(dreamTimer<30){
+dreamAlpha=dreamTimer/30;dreamFading=false;
+}else if(dreamTimer<180){
+dreamAlpha=1;
+}else if(dreamTimer<210){
+dreamAlpha=1-(dreamTimer-180)/30;dreamFading=true;
+}else{
+dreamTimer=0;dreamAlpha=0;
+curDream=DREAMS[Math.floor(Math.random()*DREAMS.length)];
+}
+drawDreamBubble(curDream,dreamAlpha);
+drawSleepTimer();
+
+frame++;
+sleepAnimRAF=requestAnimationFrame(tick);
+}
+sleepAnimRAF=requestAnimationFrame(tick);
+}
+
+function stopSleepAnim(){
+if(sleepAnimRAF){cancelAnimationFrame(sleepAnimRAF);sleepAnimRAF=null}
+const cv=document.getElementById('feedScene');
+cv.style.opacity='0';
+setTimeout(()=>{cv.getContext('2d').clearRect(0,0,320,240)},300);
+}
+
+function enterSleepUI(){
+// Button becomes Wake Up
+const btn=document.getElementById('btnSleep');
+btn.innerHTML='<span class="btn-icon">☀️</span>Wake';
+btn.classList.add('wake-mode');
+// Disable other action buttons, enable Wake button
+document.querySelectorAll('.action-btn').forEach(b=>{if(b.id!=='btnSleep')b.classList.add('disabled')});
+btn.classList.remove('disabled');
+// LCD darker
+document.getElementById('lcdScreen').classList.add('sleeping-mode');
+// Hide default sleep timer (we draw our own on canvas)
+document.getElementById('sleepTimer').classList.remove('visible');
+if(sleepTimerInt){clearInterval(sleepTimerInt);sleepTimerInt=null}
+// Start persistent sleep animation
+startSleepAnim();
+}
+
+function exitSleepUI(){
+// Stop sleep animation
+stopSleepAnim();
+// Button back to Sleep
+const btn=document.getElementById('btnSleep');
+btn.innerHTML='<span class="btn-icon">💤</span>Sleep';
+btn.classList.remove('wake-mode');
+// Re-enable buttons
+document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('disabled'));
+// LCD normal
+document.getElementById('lcdScreen').classList.remove('sleeping-mode');
+// Hide sleep timer
+document.getElementById('sleepTimer').classList.remove('visible');
+if(sleepTimerInt){clearInterval(sleepTimerInt);sleepTimerInt=null}
+}
+
+function updateSleepTimer(){
+if(!gs.sleeping||!gs.sleepStart)return;
+const elapsed=Math.floor((Date.now()-gs.sleepStart)/1000);
+const h=Math.floor(elapsed/3600);
+const m=Math.floor((elapsed%3600)/60);
+const s=elapsed%60;
+let txt='💤 ';
+if(h>0)txt+=h+'h ';
+txt+=m+'m '+s+'s';
+document.getElementById('sleepTimer').textContent=txt;
+}
+
+/* ============================================================
+   MINI GAMES SYSTEM
+   ============================================================ */
+let mgActive=null,mgRAF=null,mgInterval=null;
+
+function openMiniGames(){triggerBurst('games');document.getElementById('mgModal').classList.add('open');document.getElementById('mgSelector').style.display='block';document.querySelectorAll('.mg-play').forEach(p=>p.classList.remove('active'))}
+function closeMiniGames(){document.getElementById('mgModal').classList.remove('open');endMG()}
+function endMG(){if(mgRAF)cancelAnimationFrame(mgRAF);if(mgInterval)clearInterval(mgInterval);mgRAF=null;mgInterval=null;mgActive=null;document.getElementById('mgSelector').style.display='block';document.querySelectorAll('.mg-play').forEach(p=>p.classList.remove('active'))}
+function showResult(text){gs.playCount=(gs.playCount||0)+1;addLog('game',gs.name+' played a mini game! (Game #'+gs.playCount+')');save();endMG();document.getElementById('mgSelector').style.display='none';document.getElementById('mgResult').classList.add('active');document.getElementById('mgResultText').innerHTML=text;updateDisp()}
+
+function launchMG(type){
+document.getElementById('mgSelector').style.display='none';
+mgActive=type;
+if(type==='banana')startBananaCatch();
+else if(type==='memory')startMemoryMatch();
+else if(type==='dodge')startDodgeBully();
+else if(type==='groom')startGrooming();
+}
+
+/* --- BANANA CATCH --- */
+function startBananaCatch(){
+const panel=document.getElementById('mgBanana');panel.classList.add('active');
+const cv=document.getElementById('bananaCanvas'),cx=cv.getContext('2d');
+const W=360,H=300;cv.width=W;cv.height=H;
+let score=0,timeLeft=20,basket={x:W/2-25,w:50,h:16},bananas=[],spawnT=0;
+document.getElementById('bananaScore').textContent='🍌 0';
+document.getElementById('bananaTimer').textContent='Time: 20s';
+
+function spawnB(){bananas.push({x:Math.random()*(W-16),y:-16,w:16,h:16,vy:2+Math.random()*2})}
+
+// Mouse/touch
+function moveBasket(ex){const r=cv.getBoundingClientRect();const mx=(ex-r.left)*(W/r.width);basket.x=Math.max(0,Math.min(W-basket.w,mx-basket.w/2))}
+cv.onmousemove=e=>moveBasket(e.clientX);
+cv.ontouchmove=e=>{e.preventDefault();moveBasket(e.touches[0].clientX)};
+
+mgInterval=setInterval(()=>{timeLeft--;document.getElementById('bananaTimer').textContent='Time: '+timeLeft+'s';if(timeLeft<=0){clearInterval(mgInterval);mgInterval=null;cancelAnimationFrame(mgRAF);mgRAF=null;const reward=Math.min(40,score*4);gs.hunger=Math.min(100,gs.hunger+reward);save();updateDisp();showResult('🍌 Banana Catch Complete!<br>Caught: '+score+' bananas<br>Hunger +'+reward)}},1000);
+
+function tick(){
+cx.fillStyle='#0a1a0a';cx.fillRect(0,0,W,H);
+spawnT++;if(spawnT%30===0)spawnB();
+// basket
+cx.fillStyle='#8B4513';cx.fillRect(basket.x,H-basket.h-4,basket.w,basket.h);
+cx.fillStyle='#A0522D';cx.fillRect(basket.x+2,H-basket.h-2,basket.w-4,basket.h-4);
+// bananas
+for(let i=bananas.length-1;i>=0;i--){
+const b=bananas[i];b.y+=b.vy;
+cx.fillStyle='#FFD700';cx.fillRect(b.x,b.y,b.w,b.h);
+cx.fillStyle='#FFA500';cx.fillRect(b.x+2,b.y+2,b.w-4,b.h-4);
+// catch
+if(b.y+b.h>=H-basket.h-4&&b.x+b.w>basket.x&&b.x<basket.x+basket.w){score++;document.getElementById('bananaScore').textContent='🍌 '+score;bananas.splice(i,1)}
+else if(b.y>H){bananas.splice(i,1)}
+}
+// ground line
+cx.fillStyle='#1e4a1e';cx.fillRect(0,H-4,W,4);
+// Punch face
+cx.fillStyle=C.fur;cx.fillRect(basket.x+basket.w/2-8,H-basket.h-20,16,16);
+cx.fillStyle=C.face;cx.fillRect(basket.x+basket.w/2-6,H-basket.h-18,12,12);
+cx.fillStyle=C.eye;cx.fillRect(basket.x+basket.w/2-4,H-basket.h-16,3,3);
+cx.fillRect(basket.x+basket.w/2+2,H-basket.h-16,3,3);
+if(mgActive==='banana')mgRAF=requestAnimationFrame(tick);
+}
+mgRAF=requestAnimationFrame(tick);
+}
+
+/* --- MEMORY MATCH --- */
+function startMemoryMatch(){
+const panel=document.getElementById('mgMemory');panel.classList.add('active');
+const grid=document.getElementById('memoryGrid');
+grid.innerHTML='';
+const emojis=['🍌','🐒','🧸','🍃','❤️','⭐'];
+let cards=[...emojis,...emojis];
+// shuffle
+for(let i=cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]]}
+let flipped=[],matched=0,lockBoard=false;
+document.getElementById('memoryTimer').textContent='Pairs: 0/6';
+document.getElementById('memoryScore').textContent='';
+
+cards.forEach((emoji,idx)=>{
+const card=document.createElement('div');
+card.style.cssText='aspect-ratio:1;background:var(--sdark);border:2px solid rgba(255,255,255,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;transition:all .2s;user-select:none';
+card.textContent='?';
+card.dataset.emoji=emoji;
+card.dataset.idx=idx;
+card.onclick=()=>{
+if(lockBoard||card.dataset.matched||flipped.includes(card))return;
+card.textContent=emoji;card.style.background='rgba(76,175,80,.2)';card.style.borderColor='var(--primary)';
+flipped.push(card);
+if(flipped.length===2){
+lockBoard=true;
+const[a,b]=flipped;
+if(a.dataset.emoji===b.dataset.emoji){
+a.dataset.matched=b.dataset.matched='1';
+a.style.background='rgba(76,175,80,.35)';b.style.background='rgba(76,175,80,.35)';
+matched++;document.getElementById('memoryTimer').textContent='Pairs: '+matched+'/6';
+flipped=[];lockBoard=false;
+if(matched===6){const reward=30;gs.happiness=Math.min(100,gs.happiness+reward);save();updateDisp();showResult('🧠 Memory Match Complete!<br>All pairs found!<br>Happiness +'+reward)}
+}else{
+setTimeout(()=>{a.textContent='?';b.textContent='?';a.style.background='var(--sdark)';b.style.background='var(--sdark)';a.style.borderColor='rgba(255,255,255,.1)';b.style.borderColor='rgba(255,255,255,.1)';flipped=[];lockBoard=false},800);
+}
+}
+};
+grid.appendChild(card);
+});
+}
+
+/* --- DODGE BULLY --- */
+function startDodgeBully(){
+const panel=document.getElementById('mgDodge');panel.classList.add('active');
+const cv=document.getElementById('dodgeCanvas'),cx=cv.getContext('2d');
+const W=360,H=300;cv.width=W;cv.height=H;
+let timeLeft=20,hits=0,px=W/2-10,bullies=[],spawnT=0;
+document.getElementById('dodgeScore').textContent='❤️ 0 hits';
+document.getElementById('dodgeTimer').textContent='Time: 20s';
+
+function movePunch(ex){const r=cv.getBoundingClientRect();px=Math.max(0,Math.min(W-20,(ex-r.left)*(W/r.width)-10))}
+cv.onmousemove=e=>movePunch(e.clientX);
+cv.ontouchmove=e=>{e.preventDefault();movePunch(e.touches[0].clientX)};
+
+mgInterval=setInterval(()=>{timeLeft--;document.getElementById('dodgeTimer').textContent='Time: '+timeLeft+'s';if(timeLeft<=0){clearInterval(mgInterval);mgInterval=null;cancelAnimationFrame(mgRAF);mgRAF=null;const survived=Math.max(0,20-hits);const reward=Math.min(35,survived*2);gs.love=Math.min(100,gs.love+reward);save();updateDisp();showResult('🙈 Dodge Bully Complete!<br>Hits taken: '+hits+'<br>Love +'+reward)}},1000);
+
+function tick(){
+cx.fillStyle='#0a1a0a';cx.fillRect(0,0,W,H);
+spawnT++;if(spawnT%25===0)bullies.push({x:Math.random()*(W-20),y:-20,vy:2.5+Math.random()*2});
+// bullies
+for(let i=bullies.length-1;i>=0;i--){
+const b=bullies[i];b.y+=b.vy;
+cx.fillStyle='#8B4513';cx.fillRect(b.x,b.y,20,20);
+cx.fillStyle='#A0522D';cx.fillRect(b.x+3,b.y+3,14,10);
+cx.fillStyle='#1a1a1a';cx.fillRect(b.x+5,b.y+6,3,3);cx.fillRect(b.x+12,b.y+6,3,3);
+cx.fillStyle='#ff4444';cx.fillRect(b.x+7,b.y+11,6,2);
+// hit check
+if(b.y+20>H-28&&b.y<H-8&&b.x+20>px&&b.x<px+20){hits++;document.getElementById('dodgeScore').textContent='❤️ '+hits+' hits';bullies.splice(i,1);continue}
+if(b.y>H)bullies.splice(i,1);
+}
+// ground
+cx.fillStyle='#1e4a1e';cx.fillRect(0,H-4,W,4);
+// Punch
+cx.fillStyle=C.fur;cx.fillRect(px,H-24,20,20);
+cx.fillStyle=C.face;cx.fillRect(px+3,H-22,14,14);
+cx.fillStyle=C.eye;cx.fillRect(px+5,H-19,3,3);cx.fillRect(px+12,H-19,3,3);
+cx.fillStyle=C.mouth;cx.fillRect(px+8,H-14,4,2);
+if(mgActive==='dodge')mgRAF=requestAnimationFrame(tick);
+}
+mgRAF=requestAnimationFrame(tick);
+}
+
+/* --- GROOMING --- */
+function startGrooming(){
+const panel=document.getElementById('mgGroom');panel.classList.add('active');
+const cv=document.getElementById('groomCanvas'),cx=cv.getContext('2d');
+const W=360,H=300;cv.width=W;cv.height=H;
+const totalSpots=8;let cleaned=0;
+document.getElementById('groomTimer').textContent='Spots: 0/'+totalSpots;
+document.getElementById('groomScore').textContent='';
+
+// Draw Punch big
+function drawBigPunch(){
+cx.fillStyle='#0a1a0a';cx.fillRect(0,0,W,H);
+const s=12;const ox=W/2-8*s,oy=H/2-7*s;
+getPunch('happy').forEach(([x,y,c])=>{cx.fillStyle=c;cx.fillRect(ox+x*s,oy+y*s,s,s)});
+}
+drawBigPunch();
+
+// Place dirt spots
+const spots=[];
+for(let i=0;i<totalSpots;i++){
+let sx,sy,tries=0;
+do{sx=60+Math.random()*(W-120);sy=40+Math.random()*(H-80);tries++}while(tries<50&&spots.some(s=>Math.abs(s.x-sx)<30&&Math.abs(s.y-sy)<30));
+spots.push({x:sx,y:sy,r:12+Math.random()*8,alive:true});
+}
+
+function drawSpots(){
+spots.forEach(s=>{
+if(!s.alive)return;
+cx.fillStyle='rgba(80,50,20,.7)';
+cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fill();
+cx.fillStyle='rgba(60,35,10,.5)';
+cx.beginPath();cx.arc(s.x-2,s.y-2,s.r*.6,0,Math.PI*2);cx.fill();
+});
+}
+drawSpots();
+
+function handleClick(ex,ey){
+const r=cv.getBoundingClientRect();
+const mx=(ex-r.left)*(W/r.width);
+const my=(ey-r.top)*(H/r.height);
+spots.forEach(s=>{
+if(!s.alive)return;
+const dx=mx-s.x,dy=my-s.y;
+if(Math.sqrt(dx*dx+dy*dy)<s.r+8){
+s.alive=false;cleaned++;
+document.getElementById('groomTimer').textContent='Spots: '+cleaned+'/'+totalSpots;
+drawBigPunch();drawSpots();
+if(cleaned>=totalSpots){
+const reward=30;gs.energy=Math.min(100,gs.energy+reward);save();updateDisp();
+showResult('✨ Grooming Complete!<br>All spots cleaned!<br>Energy +'+reward);
+}
+}
+});
+}
+cv.onclick=e=>handleClick(e.clientX,e.clientY);
+cv.ontouchstart=e=>{e.preventDefault();handleClick(e.touches[0].clientX,e.touches[0].clientY)};
+}
+
+/* ===== START ===== */
+init();
+</script>
+</body>
+</html>
